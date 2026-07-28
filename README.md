@@ -5,11 +5,11 @@ one table. Robots, objects, sensors, behaviors, cameras, and external agents
 can all be configured from one integrated GUI.
 
 The initial iCub model and 3D assets come from
-[rustlluk/pyCub](https://github.com/rustlluk/pyCub). PyCubSim2 preserves that
-upstream attribution while adding a separate scene editor, multi-robot
+[rustlluk/pyCub](https://github.com/rustlluk/pyCub). PyCubSim2 preserves credit
+to that reference project while adding a separate scene editor, multi-robot
 controls, RGB-D views, webcam input, dual-view rendering, and a plugin-style
-agent interface. It is not a drop-in copy of the upstream high-level Python
-API.
+agent interface. It is not a drop-in copy of the original pyCub high-level
+Python API.
 
 ![PyCubSim2 default scene](docs/images/default_scene.png)
 
@@ -243,30 +243,30 @@ pycubsim2/
   plugins.py       Agent bundles and controller host
   sensors.py       RGB-D, segmentation, and webcam support
   simulation.py    PyBullet scene, physics, cameras, picking, and IK
-assets/iCub/       iCub URDF, meshes, and skin data from upstream pyCub
+assets/iCub/       iCub URDF, meshes, and skin data from rustlluk/pyCub
 actions/           Example keyframe actions
 examples/agents/   Example external agents
 layouts/           Saved scenes
 ```
 
-## Contributors and Upstream Credit
+## Contributors and References
 
 PyCubSim2:
 
 - [yuta4869](https://github.com/yuta4869): project owner, integration, and
   PyCubSim2 implementation.
 
-Upstream [rustlluk/pyCub](https://github.com/rustlluk/pyCub):
+Reference project [rustlluk/pyCub](https://github.com/rustlluk/pyCub):
 
 - [Lukáš Rustler](https://github.com/rustlluk): creator and primary author of
   pyCub.
 - Matěj Hoffmann: co-author of the pyCub framework publication cited by the
-  upstream project.
+  original project.
 - [Ilia Zavidnyi](https://github.com/zavidnyi): contributor recorded in the
-  upstream pyCub Git history.
+  original pyCub Git history.
 
 PyCubSim2 is a derivative simulator and does not claim authorship of the
-upstream pyCub model assets or original simulator work.
+original pyCub model assets or simulator work.
 
 ## Source and License
 
@@ -277,7 +277,7 @@ The iCub model assets are based on
 See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) and
 [LICENSE](LICENSE) for attribution and license details.
 
-The upstream project requests the following citation:
+The original pyCub project requests the following citation:
 
 ```bibtex
 @inproceedings{rustler2026pycub,
@@ -297,9 +297,9 @@ PyCubSim2は、1台のPyCubと1台の机から始め、ロボット、物体、�
 
 初期iCubモデルと3D資産には
 [rustlluk/pyCub](https://github.com/rustlluk/pyCub)を使用しています。
-PyCubSim2は上流作者への帰属を維持しつつ、独立したシーン編集、複数ロボット制御、
+PyCubSim2は参考元へのクレジットを明記しつつ、独立したシーン編集、複数ロボット制御、
 RGB-D表示、Webcam入力、2画面表示、外部エージェント機構を追加しています。
-上流の高水準Python APIをそのまま複製したものではありません。
+元のpyCubの高水準Python APIをそのまま複製したものではありません。
 
 ![PyCubSim2 default scene](docs/images/default_scene.png)
 
@@ -512,27 +512,27 @@ pycubsim2/
   plugins.py       Agent BundleとControllerホスト
   sensors.py       RGB-D、Segmentation、Webcam
   simulation.py    PyBulletシーン、物理、カメラ、選択、IK
-assets/iCub/       上流pyCub由来のiCub URDF／mesh／skin
+assets/iCub/       参考元pyCub由来のiCub URDF／mesh／skin
 actions/           サンプルキーフレーム行動
 examples/agents/   外部3Dエージェントのサンプル
 layouts/           保存シーン
 ```
 
-## Contributorsと上流作者
+## Contributorsと参考先
 
 PyCubSim2:
 
 - [yuta4869](https://github.com/yuta4869): プロジェクト所有者、統合、
   PyCubSim2の実装
 
-上流 [rustlluk/pyCub](https://github.com/rustlluk/pyCub):
+参考先 [rustlluk/pyCub](https://github.com/rustlluk/pyCub):
 
 - [Lukáš Rustler](https://github.com/rustlluk): pyCubの作成者、主要作者
-- Matěj Hoffmann: 上流プロジェクトが示すpyCubフレームワーク論文の共同著者
-- [Ilia Zavidnyi](https://github.com/zavidnyi): 上流pyCubのGit履歴に記録された
+- Matěj Hoffmann: 参考先プロジェクトが示すpyCubフレームワーク論文の共同著者
+- [Ilia Zavidnyi](https://github.com/zavidnyi): 参考先pyCubのGit履歴に記録された
   コード貢献者
 
-PyCubSim2は派生シミュレーターであり、上流pyCubのモデル資産や元のシミュレーターに
+PyCubSim2は派生シミュレーターであり、参考元pyCubのモデル資産や元のシミュレーターに
 対する作者性を主張するものではありません。
 
 ## 出典とライセンス
@@ -544,7 +544,7 @@ iCubモデル資産は、CC BY 4.0で公開された
 帰属とライセンスの詳細は[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)と
 [LICENSE](LICENSE)を参照してください。
 
-上流プロジェクトが示す引用形式:
+参考先プロジェクトが示す引用形式:
 
 ```bibtex
 @inproceedings{rustler2026pycub,
