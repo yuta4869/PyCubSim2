@@ -315,6 +315,42 @@ class GuiSmokeTests(unittest.TestCase):
                 str(app.property_fixed_check.cget("state")), "disabled"
             )
 
+            widget_texts: set[str] = set()
+
+            def collect_widget_texts(widget: tk.Misc) -> None:
+                try:
+                    text = widget.cget("text")
+                except tk.TclError:
+                    text = ""
+                if isinstance(text, str) and text:
+                    widget_texts.add(text)
+                for child in widget.winfo_children():
+                    collect_widget_texts(child)
+
+            collect_widget_texts(root)
+            for expected in (
+                "X [m]",
+                "Roll [deg]",
+                "Size X [m]",
+                "Mass [kg]",
+                "Distance [m]",
+            ):
+                self.assertIn(expected, widget_texts)
+            self.assertTrue(
+                any(text.endswith(" deg") for text in widget_texts)
+            )
+
+            app._refresh_telemetry()
+            telemetry = app.telemetry_text.get("1.0", tk.END)
+            self.assertIn("position [m]", telemetry)
+            self.assertIn("velocity [m/s]", telemetry)
+            map_labels = {
+                app.layout_editor.itemcget(item, "text")
+                for item in app.layout_editor.find_all()
+                if app.layout_editor.type(item) == "text"
+            }
+            self.assertIn("+X right   +Y up   grid 0.5 m", map_labels)
+
             app.split_view_var.set(True)
             app._split_view_changed()
             root.update_idletasks()

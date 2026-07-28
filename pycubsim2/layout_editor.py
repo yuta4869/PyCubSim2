@@ -288,7 +288,7 @@ class SceneMapEditor(tk.Canvas):
             12,
             10,
             anchor="nw",
-            text="+X right   +Y up",
+            text="+X right   +Y up   grid 0.5 m",
             fill="#59635e",
             font=("TkDefaultFont", 9, "bold"),
         )

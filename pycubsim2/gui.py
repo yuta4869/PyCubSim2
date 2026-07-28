@@ -622,8 +622,12 @@ class PyCubSim2App:
 
         for row, fields in enumerate(
             (
-                (("X", "x"), ("Y", "y"), ("Z", "z")),
-                (("Roll", "roll"), ("Pitch", "pitch"), ("Yaw", "yaw")),
+                (("X [m]", "x"), ("Y [m]", "y"), ("Z [m]", "z")),
+                (
+                    ("Roll [deg]", "roll"),
+                    ("Pitch [deg]", "pitch"),
+                    ("Yaw [deg]", "yaw"),
+                ),
             ),
             start=2,
         ):
@@ -646,7 +650,11 @@ class PyCubSim2App:
                 self.property_inputs[key] = entry
 
         for group, (label, key) in enumerate(
-            (("Size X", "size_x"), ("Size Y", "size_y"), ("Size Z", "size_z"))
+            (
+                ("Size X [m]", "size_x"),
+                ("Size Y [m]", "size_y"),
+                ("Size Z [m]", "size_z"),
+            )
         ):
             ttk.Label(properties, text=label).grid(
                 row=4, column=group * 2, sticky="w"
@@ -671,7 +679,9 @@ class PyCubSim2App:
         )
         scale_entry.grid(row=5, column=1, sticky="ew", padx=(0, 5), pady=2)
         self.property_inputs["scale"] = scale_entry
-        ttk.Label(properties, text="Mass").grid(row=5, column=2, sticky="w")
+        ttk.Label(properties, text="Mass [kg]").grid(
+            row=5, column=2, sticky="w"
+        )
         mass_entry = ttk.Entry(
             properties, textvariable=self.property_vars["mass"], width=7
         )
@@ -729,7 +739,7 @@ class PyCubSim2App:
             font=("TkDefaultFont", 11, "bold"),
         ).grid(row=0, column=0, columnspan=6, sticky="w", pady=(0, 5))
         for group, (label, key) in enumerate(
-            (("X", "x"), ("Y", "y"), ("Yaw", "yaw"))
+            (("X [m]", "x"), ("Y [m]", "y"), ("Yaw [deg]", "yaw"))
         ):
             ttk.Label(selected, text=label).grid(
                 row=1, column=group * 2, sticky="w"
@@ -831,39 +841,44 @@ class PyCubSim2App:
         task_frame = ttk.LabelFrame(parent, text="Cartesian reach and grip")
         task_frame.grid(row=2, column=0, sticky="ew", pady=(8, 0))
         task_frame.grid_columnconfigure((1, 3, 5), weight=1)
+        ttk.Label(task_frame, text="Arm").grid(
+            row=0, column=0, sticky="w"
+        )
         ttk.Combobox(
             task_frame,
             textvariable=self.ik_side_var,
             values=("Right", "Left"),
             state="readonly",
             width=7,
-        ).grid(row=0, column=0, sticky="w")
+        ).grid(row=0, column=1, columnspan=2, sticky="ew", padx=(4, 8))
+        ttk.Button(task_frame, text="Reach", command=self.reach_target).grid(
+            row=0, column=4, columnspan=2, sticky="ew"
+        )
         for group, key in enumerate(("x", "y", "z")):
-            ttk.Label(task_frame, text=key.upper()).grid(
-                row=0, column=group * 2 + 1, sticky="e"
+            ttk.Label(task_frame, text=f"{key.upper()} [m]").grid(
+                row=1, column=group * 2, sticky="w"
             )
             ttk.Entry(
                 task_frame, textvariable=self.ik_vars[key], width=7
-            ).grid(row=0, column=group * 2 + 2, sticky="ew", padx=(3, 6))
-        ttk.Button(task_frame, text="Reach", command=self.reach_target).grid(
-            row=0, column=7, sticky="ew"
-        )
-        ttk.Label(task_frame, text="Left grip").grid(row=1, column=0, sticky="w")
+            ).grid(row=1, column=group * 2 + 1, sticky="ew", padx=(3, 7))
+        ttk.Label(task_frame, text="Left grip").grid(row=2, column=0, sticky="w")
         ttk.Scale(
             task_frame,
             variable=self.left_grip_var,
             from_=0.0,
             to=1.0,
             command=lambda _value: self._grip_changed("l"),
-        ).grid(row=1, column=1, columnspan=3, sticky="ew", padx=(4, 8))
-        ttk.Label(task_frame, text="Right grip").grid(row=1, column=4, sticky="w")
+        ).grid(row=2, column=1, columnspan=2, sticky="ew", padx=(4, 8))
+        ttk.Label(task_frame, text="Right grip").grid(
+            row=2, column=3, sticky="w"
+        )
         ttk.Scale(
             task_frame,
             variable=self.right_grip_var,
             from_=0.0,
             to=1.0,
             command=lambda _value: self._grip_changed("r"),
-        ).grid(row=1, column=5, columnspan=3, sticky="ew", padx=(4, 0))
+        ).grid(row=2, column=4, columnspan=2, sticky="ew", padx=(4, 0))
 
         ttk.Label(
             parent,
@@ -938,16 +953,16 @@ class PyCubSim2App:
         parent.grid_columnconfigure(0, weight=1)
         for row, (label, key, lower, upper) in enumerate(
             (
-                ("Yaw", "yaw", -180.0, 180.0),
-                ("Pitch", "pitch", -82.0, 10.0),
-                ("Distance", "distance", 0.65, 12.0),
+                ("Yaw [deg]", "yaw", -180.0, 180.0),
+                ("Pitch [deg]", "pitch", -82.0, 10.0),
+                ("Distance [m]", "distance", 0.65, 12.0),
             )
         ):
             line = ttk.Frame(parent)
             line.grid(row=row, column=0, sticky="ew", pady=(0, 12))
             line.grid_columnconfigure(0, weight=1)
             ttk.Label(line, text=label).grid(row=0, column=0, sticky="w")
-            value_label = ttk.Label(line, width=9, anchor="e")
+            value_label = ttk.Label(line, width=10, anchor="e")
             value_label.grid(row=0, column=1, sticky="e")
             ttk.Scale(
                 line,
@@ -962,7 +977,7 @@ class PyCubSim2App:
                 "write",
                 lambda *_args, variable=self.camera_vars[key], target=value_label, camera_key=key: target.configure(
                     text=(
-                        f"{variable.get():.2f}"
+                        f"{variable.get():.2f} m"
                         if camera_key == "distance"
                         else f"{variable.get():.0f} deg"
                     )
@@ -970,7 +985,7 @@ class PyCubSim2App:
             )
             value_label.configure(
                 text=(
-                    f"{self.camera_vars[key].get():.2f}"
+                    f"{self.camera_vars[key].get():.2f} m"
                     if key == "distance"
                     else f"{self.camera_vars[key].get():.0f} deg"
                 )
@@ -1537,8 +1552,8 @@ class PyCubSim2App:
                 ).grid(row=row, column=0, sticky="w", padx=(3, 5), pady=3)
                 value_label = ttk.Label(
                     self.manual_frame.interior,
-                    text=f"{current:.1f}",
-                    width=7,
+                    text=f"{current:.1f} deg",
+                    width=10,
                     anchor="e",
                 )
                 value_label.grid(row=row, column=2, sticky="e", padx=(4, 3))
@@ -1559,7 +1574,7 @@ class PyCubSim2App:
         self, name: str, variable: tk.DoubleVar, label: ttk.Label
     ) -> None:
         value = variable.get()
-        label.configure(text=f"{value:.1f}")
+        label.configure(text=f"{value:.1f} deg")
         if self._manual_syncing or self.selected_entity_id is None:
             return
         try:
@@ -2106,9 +2121,11 @@ class PyCubSim2App:
                     (
                         "",
                         "IMU",
-                        f"  position  {position[0]: .3f} {position[1]: .3f} {position[2]: .3f}",
-                        f"  rpy deg   {rpy[0]: .1f} {rpy[1]: .1f} {rpy[2]: .1f}",
-                        f"  velocity  {velocity[0]: .3f} {velocity[1]: .3f} {velocity[2]: .3f}",
+                        f"  position [m]   {position[0]: .3f}"
+                        f" {position[1]: .3f} {position[2]: .3f}",
+                        f"  rpy [deg]      {rpy[0]: .1f} {rpy[1]: .1f} {rpy[2]: .1f}",
+                        f"  velocity [m/s] {velocity[0]: .3f}"
+                        f" {velocity[1]: .3f} {velocity[2]: .3f}",
                     )
                 )
             contacts = snapshot.get("contact")

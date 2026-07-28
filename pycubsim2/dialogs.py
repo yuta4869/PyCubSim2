@@ -47,7 +47,9 @@ class PrimitiveDialog(tk.Toplevel):
         shape.grid(row=1, column=1, columnspan=3, sticky="ew", pady=4)
         shape.bind("<<ComboboxSelected>>", self._shape_changed)
 
-        for column, label in enumerate(("Size X", "Size Y", "Size Z")):
+        for column, label in enumerate(
+            ("Size X [m]", "Size Y [m]", "Size Z [m]")
+        ):
             ttk.Label(frame, text=label).grid(
                 row=2, column=column + 1, sticky="w", pady=(8, 2)
             )
@@ -56,7 +58,9 @@ class PrimitiveDialog(tk.Toplevel):
             ).grid(row=3, column=column + 1, sticky="ew", padx=(0, 5))
         ttk.Label(frame, text="Geometry").grid(row=3, column=0, sticky="w")
 
-        ttk.Label(frame, text="Mass kg").grid(row=4, column=0, sticky="w", pady=8)
+        ttk.Label(frame, text="Mass [kg]").grid(
+            row=4, column=0, sticky="w", pady=8
+        )
         ttk.Entry(frame, textvariable=self.mass_var, width=10).grid(
             row=4, column=1, sticky="w", pady=8
         )
@@ -162,7 +166,9 @@ class ModelImportDialog(tk.Toplevel):
         ttk.Entry(frame, textvariable=self.scale_var, width=12).grid(
             row=2, column=1, sticky="w", pady=4
         )
-        ttk.Label(frame, text="Mass kg").grid(row=3, column=0, sticky="w", pady=4)
+        ttk.Label(frame, text="Mass [kg]").grid(
+            row=3, column=0, sticky="w", pady=4
+        )
         ttk.Entry(frame, textvariable=self.mass_var, width=12).grid(
             row=3, column=1, sticky="w", pady=4
         )

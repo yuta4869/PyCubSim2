@@ -50,6 +50,10 @@ The `Scene` tab supports:
 - `Apply`: update name, position, orientation, scale, mass, dimensions, and
   color.
 
+Numeric labels show their units: positions and dimensions use metres (`m`),
+rotations use degrees (`deg`), mass uses kilograms (`kg`), and manual joint
+angles use degrees. Scale, grip, and behavior intensity are unitless.
+
 `Open` and `Save` read or write the complete scene as JSON. `Reset` restores
 the default one-PyCub and one-table scene.
 
@@ -73,7 +77,8 @@ including PyCubs, tables, primitives, imported models, and agent bundles.
 - Drag the heading handle to change yaw.
 - Use the mouse wheel or trackpad scroll to rotate the selected entity in
   five-degree increments.
-- Enter X, Y, and Yaw values and press `Apply placement` for numeric editing.
+- Enter X (`m`), Y (`m`), and Yaw (`deg`) values and press `Apply placement`
+  for numeric editing.
 - Press `Fit world camera` to frame the complete scene around its spatial
   center.
 
@@ -336,6 +341,9 @@ python run_sim.py
 - `Duplicate` / `Remove`: 選択した要素を複製／削除
 - `Apply`: 名前、位置、姿勢、スケール、質量、寸法、色を反映
 
+数値ラベルには単位を表示します。位置と寸法はメートル（`m`）、回転は度（`deg`）、
+質量はキログラム（`kg`）、手動関節角は度です。Scale、grip、行動強度は無次元です。
+
 `Open`と`Save`はシーン全体をJSONとして読み書きします。`Reset`はPyCub 1台と
 机1台の初期状態へ戻します。
 
@@ -356,7 +364,7 @@ python run_sim.py
 - 要素をドラッグ: X-Y平面上で移動
 - 向きを示すハンドルをドラッグ: yawを変更
 - マウスホイール／トラックパッドスクロール: 選択要素を5度ずつ回転
-- X、Y、Yawを入力して`Apply placement`: 数値で配置
+- X（`m`）、Y（`m`）、Yaw（`deg`）を入力して`Apply placement`: 数値で配置
 - `Fit world camera`: 空間全体の中心を基準に全要素を画面へ収める
 
 ドラッグ中も3D画面へ反映され、確定した1回のドラッグは1回のUndoで戻せます。
