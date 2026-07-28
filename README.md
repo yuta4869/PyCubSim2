@@ -1,82 +1,92 @@
 # PyCubSim2
 
-PyCubSim2 は、1台の PyCub と1台の机から始め、GUI 上でロボット、物体、
-センサー、行動、外部エージェントを組み替えられる拡張シミュレーターです。
-既存の `pycub_dual_tabletop` は変更せず、独立した環境として作成しています。
+[English](#english) | [日本語](#日本語)
 
-初期シーンには [rustlluk/pyCub](https://github.com/rustlluk/pyCub) の
-`full.urdf` と3D資産を使っています。公式画像に近い「机の前に立つ iCub」を
-初期状態にしていますが、公式の高水準 Python API をそのまま複製したものではなく、
-シーン編集と統合GUIを追加した別アプリケーションです。
+## English
+
+PyCubSim2 is an extensible PyBullet simulator that starts with one PyCub and
+one table. Robots, objects, sensors, behaviors, cameras, and external agents
+can all be configured from one integrated GUI.
+
+The initial iCub model and 3D assets come from
+[rustlluk/pyCub](https://github.com/rustlluk/pyCub). PyCubSim2 preserves that
+upstream attribution while adding a separate scene editor, multi-robot
+controls, RGB-D views, webcam input, dual-view rendering, and a plugin-style
+agent interface. It is not a drop-in copy of the upstream high-level Python
+API.
 
 ![PyCubSim2 default scene](docs/images/default_scene.png)
 
-## 起動
+### Quick Start
 
-macOS では、次のアプリを Finder からダブルクリックできます。
-
-```text
-/Users/yuta/research/PyCubSim2/PyCubSim2.app
-```
-
-ターミナルから起動する場合:
+On macOS, open `PyCubSim2.app` in Finder or run:
 
 ```bash
-cd /Users/yuta/research/PyCubSim2
+cd /path/to/PyCubSim2
 ./launch.command
 ```
 
-専用環境を作り直す場合:
+To create the dedicated environment:
 
 ```bash
-cd /Users/yuta/research/PyCubSim2
+cd /path/to/PyCubSim2
 conda env create -f environment.yml
 conda activate pycubsim2
 python run_sim.py
 ```
 
-`launch.command` と `.app` は `pycubsim2` 環境を優先し、現在利用可能な
-`pycub-homeostatic` 環境を次の候補として使います。
+`launch.command` and the app bundle prefer the `pycubsim2` environment. On the
+original development machine, they can also use the existing
+`pycub-homeostatic` environment as a fallback.
 
-## GUI
+### Scene Editing
 
-### Scene
+The `Scene` tab supports:
 
-- `Add PyCub`: PyCub を追加し、最初の机の方向へ向けて配置
-- `Add Table`: 机を追加
-- `Add Object`: box、sphere、cylinder を寸法、質量、色、固定／動的で追加
-- `Import 3D`: URDF、SDF、MJCF (`.xml`)、OBJ、STL を読込
-- `Import Agent`: 3Dモデル、カメラ、Python行動を束ねた `agent.json` を読込
-- `Duplicate` / `Remove`: 選択要素の複製／削除
-- `Apply`: 名前、位置、姿勢、スケール、質量、寸法、色を反映
+- `+ PyCub`: add another independently controllable PyCub.
+- `+ Table`: add a table.
+- `+ Object`: add a box, sphere, or cylinder with configurable dimensions,
+  mass, color, and fixed/dynamic state.
+- `Import model`: load URDF, SDF, MJCF (`.xml`), OBJ, or STL files.
+- `Import agent`: load an `agent.json` bundle containing a model, cameras, and
+  a Python controller.
+- `Duplicate` / `Remove`: duplicate or remove the selected entity.
+- `Apply`: update name, position, orientation, scale, mass, dimensions, and
+  color.
 
-上部の `Open` / `Save` でシーン全体を JSON として読み書きできます。
-`Reset` は PyCub 1台と机1台の初期状態へ戻します。
-`Undo` / `Redo` は追加、削除、プロパティ変更、マップ／3D画面での配置変更を
-戻す／やり直すための共通履歴です。macOSでは `Command + Z` /
-`Command + Shift + Z` も使えます。
-選択した種類／ファイル形式で反映できないプロパティは自動的に無効になります。
-たとえば URDF の質量と材質はファイル側の定義を使います。
+`Open` and `Save` read or write the complete scene as JSON. `Reset` restores
+the default one-PyCub and one-table scene.
+
+`Undo` and `Redo` cover entity addition, removal, property edits, and placement
+changes made from either the map or the 3D view. On macOS, use
+`Command + Z` / `Command + Shift + Z`.
+
+Properties that do not apply to the selected entity are disabled. For example,
+URDF mass and materials continue to use definitions from the imported file.
 
 ![Two PyCubs and an added object](docs/images/extensible_scene.png)
 
-### Layout
+### Top-Down Layout
 
-`Layout` タブは、シーン全体を上から見た配置マップです。追加した台数や種類に
-かかわらず、PyCub、机、物体、3Dモデル、Agent Bundleを同じマップで扱えます。
+The `Layout` tab provides a top-down map for every entity in the scene,
+including PyCubs, tables, primitives, imported models, and agent bundles.
 
-- 本体をクリック: 対象を選択し、Scene / Actions / Sensors と同期
-- 本体をドラッグ: X-Y平面上で移動
-- 選択対象から伸びる矢印先端をドラッグ: yawを変更
-- マウスホイール／トラックパッドスクロール: yawを5度ずつ変更
-- `Apply placement`: X、Y、Yawの数値を反映
-- `Fit world camera`: 全要素が入るようWorldカメラを空間中心へ戻す
+- Click an entity to select it and synchronize the Scene, Actions, and Sensors
+  tabs.
+- Drag an entity to move it on the X-Y plane.
+- Drag the heading handle to change yaw.
+- Use the mouse wheel or trackpad scroll to rotate the selected entity in
+  five-degree increments.
+- Enter X, Y, and Yaw values and press `Apply placement` for numeric editing.
+- Press `Fit world camera` to frame the complete scene around its spatial
+  center.
 
-ドラッグ中も3D画面へ反映され、確定後は1回の `Undo` で元の配置へ戻ります。
+Placement is updated in the 3D view while dragging. One completed drag is
+stored as one undoable operation.
 
 ### Actions
 
-PyCub ごとに次の行動を選択できます。
+Each PyCub can independently use:
 
 - Manual pose
 - Idle breathing
@@ -88,72 +98,85 @@ PyCub ごとに次の行動を選択できます。
 - Random motion
 - Keyframe action
 
-`Start` と `Stop` は選択中の個体だけに作用します。手動関節スライダー、左右の
-grip、世界座標を使う腕の IK (`Reach`) も個体ごとに独立しています。
-手動・IK指令は即時反映され、時間変化する行動だけが周期実行されます。
+`Start` and `Stop` affect only the selected PyCub. Manual joint sliders, left
+and right grips, and world-coordinate arm IK (`Reach`) are also per robot.
+Manual or IK commands apply immediately; only time-varying behaviors require
+continuous updates.
 
-`Load JSON action` では `actions/` のキーフレーム行動を読めます。
-関節値は度、grip は `0.0`（開）から `1.0`（閉）です。
+`Load action JSON` loads keyframe actions from `actions/`. Joint values are in
+degrees, and grip values range from `0.0` open to `1.0` closed.
 
-### Sensors
+### Cameras and Sensors
 
-カメラ源は次から選べます。
+Available camera sources include:
 
 - World camera
 - Mac webcam 0
-- 各 PyCub の Left eye / Right eye / Body camera
-- 外部 Agent Bundle が定義したカメラ
-- 一般の3Dモデルに付く Body camera
+- Left eye, right eye, and body camera for every PyCub
+- Cameras defined by imported agent bundles
+- A body camera for general imported 3D models
 
-表示は `Sensor RGB`、`Sensor Depth`、`Segmentation` から選べます。
-構造化センサーとして joint state、IMU、contact、24本の range ray を任意に
-有効化できます。`Export sensor snapshot` は表示画像と同名の JSON を保存します。
-PyCubを追加すると、その個体のLeft eye / Right eye / Body cameraもカメラ候補へ
-即時追加されます。最初のPyCubだけに固定されてはいません。主カメラは3D画面上部の
-選択ボックスまたはSensorsタブ、副画面は`Second view`行の選択ボックスで切り替えます。
+Adding a PyCub immediately adds all three of its simulated cameras to the
+camera selectors. Sources are not limited to the first robot. Select the
+primary source from the control above the 3D view or from the `Sensors` tab.
+Select the secondary source from the `Second view` row when dual view is
+enabled.
 
-Macカメラを初めて選ぶと、macOSのカメラ許可が表示されます。Webcam はRGBのみで、
-depth と segmentation はシミュレーションカメラ用です。
+Available image modes are `Sensor RGB`, `Sensor Depth`, and `Segmentation`.
+Structured sensors include joint state, IMU, contact, and 24 range rays. Each
+feature can be enabled or disabled for the relevant entity.
 
-Depthの内部配列 `depth_m` は、PyBulletのOpenGL depth bufferをnear/far平面から
-逆射影した、カメラ光軸方向のメートル単位Z距離です。画面のDepth色は0.05 mから5 mまでの固定対数尺度で、
-中央画素の実距離を `center 0.000 m` 形式で画面左上に表示します。背景などレイが
-届かなかった場所は黒と `no return` になります。
+`Export sensor snapshot` saves the displayed image and a JSON snapshot.
+
+The first webcam use may trigger a macOS camera permission prompt. A physical
+webcam supplies RGB only. Depth and segmentation are generated by simulated
+cameras.
+
+The internal `depth_m` array is the metric camera-axis Z distance obtained by
+unprojecting PyBullet's OpenGL depth buffer with the configured near and far
+planes. The depth display uses a stable logarithmic color scale from 0.05 m to
+5 m. The center-pixel distance appears in the image overlay, and missing
+returns are black.
 
 | Left eye RGB | Left eye depth | Left eye segmentation |
 | --- | --- | --- |
 | ![RGB](docs/images/left_eye_rgb.png) | ![Depth](docs/images/left_eye_depth.png) | ![Segmentation](docs/images/left_eye_segmentation.png) |
 
-### Camera
+### Camera Controls and Dual View
 
-- `Camera`カーソル + 左ドラッグ: orbit
-- `Camera`カーソル + Shift + 左ドラッグ: pan
-- 中央ドラッグ／右ドラッグ: カーソルモードに関係なくpan
-- マウスホイール／トラックパッドスクロール: zoom
-- ダブルクリック: 選択要素へ focus
-- `Select`カーソル + クリック: 3D画面内のPyCub、机、物体などを選択
-- `Move`カーソル + ドラッグ: World / Top画面上で選択対象をX-Y移動
-- Camera タブ: yaw、pitch、distance、shadow、画質
-- Control + Tab／Shift + Control + Tab: 右側タブを前後移動
+- `Camera` cursor + left drag: orbit.
+- `Camera` cursor + Shift-left drag: pan.
+- Middle drag or right drag: pan in any cursor mode.
+- Mouse wheel or trackpad scroll: zoom.
+- Double-click: focus the selected entity.
+- `Select` cursor + click: select a PyCub, table, object, model, or agent in the
+  3D scene.
+- `Move` cursor + drag: move the selected entity on the X-Y plane in World or
+  Top view.
+- Camera tab: yaw, pitch, distance, shadows, and render quality.
+- `Control + Tab` / `Shift + Control + Tab`: cycle sidebar tabs.
 
-3D画面で選択した対象は黄色枠で示され、上部の `Info` / `Actions` / `Sensors` から
-対象情報、可能な行動、機能の有効／無効へ直接移動できます。`World`の初期位置と
-`Fit whole scene`は最初のPyCubではなく全要素の空間境界を基準にします。
-`Top`と`Side`も常にシーン全体の中心を使います。
+The selected entity is outlined in yellow. `Info`, `Actions`, and `Sensors`
+open the corresponding controls for that entity.
 
-`Dual view`を有効にすると画面を左右に分割します。右画面には独立した
-カメラ源と `World` / `Top` / `Side` / RGB / Depth / Segmentationを選べるため、
-たとえば左にWorld、右に追加PyCubの右眼、または左にPyCubの眼、右にMac webcamを
-同時表示できます。`Command + D`（Windows/Linuxは `Control + D`）でも切り替えられます。
+World camera reset and `Fit whole scene` use the complete scene bounds, not
+the first PyCub. Top and Side views also use the scene center.
 
-標準の `Performance` でも表示領域の1.25倍、`Balanced`は1.65倍、
-`Quality`は2倍を上限付きで描画して縮小するため、旧版の640 px引き伸ばしは
-行いません。
+`Dual view` splits the viewer into two independent panes. For example, the
+left pane can show World while the right pane shows another PyCub's right eye,
+Depth, Segmentation, or a Mac webcam. Toggle it with the GUI or
+`Command + D` on macOS and `Control + D` on Windows/Linux.
 
-## 3Dエージェント
+Performance mode renders at up to 1.25 times the display resolution, Balanced
+at 1.65 times, and Quality at 2 times before downsampling. This avoids the old
+640-pixel upscale while retaining explicit performance choices.
 
-単なるモデルは `Import 3D`、モデルと行動を一緒に追加する場合は
-`Import Agent` を使います。サンプル:
+### External 3D Agents
+
+Use `Import model` for a model without behavior. Use `Import agent` when a
+model, cameras, and behavior should be added together.
+
+Example:
 
 ```text
 examples/agents/beacon_agent/
@@ -162,27 +185,302 @@ examples/agents/beacon_agent/
   controller.py
 ```
 
-サンプルを読み込んで Agent を選択し、Actions タブの `Start` を押すと、
-上下動、旋回、首関節の行動が始まります。詳しい形式と Controller API は
-[docs/AGENT_BUNDLES.md](docs/AGENT_BUNDLES.md) を参照してください。
-ローカル Controller は通常の Python コードとして実行されるため、信頼できる
-Bundle だけを読み込んでください。
+After importing the sample, select the agent and press `Start` in the Actions
+tab. Its controller performs vertical movement, turning, and neck motion.
+
+See [docs/AGENT_BUNDLES.md](docs/AGENT_BUNDLES.md) for the manifest format and
+controller API. Local controllers execute as normal Python code, so only load
+trusted bundles.
 
 ![Imported Beacon Agent](docs/images/beacon_agent.png)
 
-## 性能
+### Performance
 
-標準は `Performance`、shadow 無効です。
+The default is `Performance` quality with shadows disabled.
 
-- 静止中は3Dフレームを作り直さない
-- 固定された PyCub と机だけなら、変化関節だけを直接更新
-- 動的物体や動的モデルを追加すると、240 Hz の PyBullet 物理へ自動切替
-- 行動中は壁時計に追従する可変ステップ更新
-- `Balanced` / `Quality` と shadow は画質を上げる代わりにCPU負荷が増加
+- Static scenes are rendered only when the view changes.
+- Fixed PyCubs and tables update only changed joints.
+- Adding a dynamic object or model automatically enables 240 Hz PyBullet
+  physics.
+- Active behaviors advance using wall-clock-aware stepping.
+- Balanced, Quality, and shadows trade additional CPU time for image quality.
 
-動的な接触実験では物体の `Fixed base` を無効にし、質量を `0` より大きくします。
+For contact experiments, disable `Fixed base` on an object and use a mass
+greater than zero.
 
-## ヘッドレス実行
+### Headless Mode
+
+```bash
+python run_sim.py --headless --steps 480 \
+  --output artifacts/headless_preview.png
+
+python run_sim.py --headless --steps 480 \
+  --agent examples/agents/beacon_agent/agent.json \
+  --output artifacts/agent_preview.png
+```
+
+List all options:
+
+```bash
+python run_sim.py --help
+```
+
+### Tests
+
+```bash
+python -m unittest discover -s tests -v
+```
+
+The suite covers the default scene, multiple PyCubs, camera enumeration,
+behaviors, IK, dynamic physics, RGB-D, metric depth, segmentation, structured
+sensors, scene save/load, external controllers, top-down placement,
+Undo/Redo, dual view, and integrated GUI construction.
+
+### Project Structure
+
+```text
+pycubsim2/
+  actions.py       Built-in and JSON keyframe actions
+  config.py        Scene, entity, and sensor configuration
+  gui.py           Integrated GUI
+  layout_editor.py Top-down editor for arbitrary entities
+  plugins.py       Agent bundles and controller host
+  sensors.py       RGB-D, segmentation, and webcam support
+  simulation.py    PyBullet scene, physics, cameras, picking, and IK
+assets/iCub/       iCub URDF, meshes, and skin data from upstream pyCub
+actions/           Example keyframe actions
+examples/agents/   Example external agents
+layouts/           Saved scenes
+```
+
+### Contributors and Upstream Credit
+
+PyCubSim2:
+
+- [yuta4869](https://github.com/yuta4869): project owner, integration, and
+  PyCubSim2 implementation.
+
+Upstream [rustlluk/pyCub](https://github.com/rustlluk/pyCub):
+
+- [Lukáš Rustler](https://github.com/rustlluk): creator and primary author of
+  pyCub.
+- Matěj Hoffmann: co-author of the pyCub framework publication cited by the
+  upstream project.
+- [Ilia Zavidnyi](https://github.com/zavidnyi): contributor recorded in the
+  upstream pyCub Git history.
+
+PyCubSim2 is a derivative simulator and does not claim authorship of the
+upstream pyCub model assets or original simulator work.
+
+### Source and License
+
+The iCub model assets are based on
+[rustlluk/pyCub](https://github.com/rustlluk/pyCub) commit
+`081ef65565355ca700604e40b94f8491c8e4d15a`, under CC BY 4.0.
+
+See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) and
+[LICENSE](LICENSE) for attribution and license details.
+
+The upstream project requests the following citation:
+
+```bibtex
+@inproceedings{rustler2026pycub,
+  title={Learning with pyCub: A Simulation and Exercise Framework for Humanoid Robotics},
+  author={Lukas Rustler and Matej Hoffmann},
+  year={2026},
+  booktitle={17th International Conference on Robotics in Education (RiE 2026)},
+  organization={Springer}
+}
+```
+
+---
+
+## 日本語
+
+PyCubSim2は、1台のPyCubと1台の机から始め、ロボット、物体、センサー、
+行動、カメラ、外部エージェントを1つの統合GUIから構成できる拡張PyBullet
+シミュレーターです。
+
+初期iCubモデルと3D資産には
+[rustlluk/pyCub](https://github.com/rustlluk/pyCub)を使用しています。
+PyCubSim2は上流作者への帰属を維持しつつ、独立したシーン編集、複数ロボット制御、
+RGB-D表示、Webcam入力、2画面表示、外部エージェント機構を追加しています。
+上流の高水準Python APIをそのまま複製したものではありません。
+
+![PyCubSim2 default scene](docs/images/default_scene.png)
+
+### 起動
+
+macOSではFinderから`PyCubSim2.app`を開くか、次を実行します。
+
+```bash
+cd /path/to/PyCubSim2
+./launch.command
+```
+
+専用環境を作る場合:
+
+```bash
+cd /path/to/PyCubSim2
+conda env create -f environment.yml
+conda activate pycubsim2
+python run_sim.py
+```
+
+`launch.command`とアプリは`pycubsim2`環境を優先します。開発元のマシンでは、
+既存の`pycub-homeostatic`環境もフォールバックとして利用できます。
+
+### シーン編集
+
+`Scene`タブでは次の操作ができます。
+
+- `+ PyCub`: 独立して制御できるPyCubを追加
+- `+ Table`: 机を追加
+- `+ Object`: box、sphere、cylinderを寸法、質量、色、固定／動的の設定付きで追加
+- `Import model`: URDF、SDF、MJCF（`.xml`）、OBJ、STLを読込
+- `Import agent`: モデル、カメラ、Python Controllerを含む`agent.json`を読込
+- `Duplicate` / `Remove`: 選択した要素を複製／削除
+- `Apply`: 名前、位置、姿勢、スケール、質量、寸法、色を反映
+
+`Open`と`Save`はシーン全体をJSONとして読み書きします。`Reset`はPyCub 1台と
+机1台の初期状態へ戻します。
+
+`Undo`と`Redo`は、要素の追加、削除、プロパティ変更、マップまたは3D画面からの
+配置変更に対応します。macOSでは`Command + Z` / `Command + Shift + Z`も使えます。
+
+選択要素に適用できないプロパティは自動的に無効になります。たとえばURDFの
+質量と材質はインポート元ファイルの定義を使用します。
+
+![Two PyCubs and an added object](docs/images/extensible_scene.png)
+
+### 俯瞰配置マップ
+
+`Layout`タブは、PyCub、机、プリミティブ、インポートしたモデル、Agent Bundleを
+含む全要素の俯瞰マップです。
+
+- 要素をクリック: 対象を選択し、Scene、Actions、Sensorsタブと同期
+- 要素をドラッグ: X-Y平面上で移動
+- 向きを示すハンドルをドラッグ: yawを変更
+- マウスホイール／トラックパッドスクロール: 選択要素を5度ずつ回転
+- X、Y、Yawを入力して`Apply placement`: 数値で配置
+- `Fit world camera`: 空間全体の中心を基準に全要素を画面へ収める
+
+ドラッグ中も3D画面へ反映され、確定した1回のドラッグは1回のUndoで戻せます。
+
+### 行動
+
+各PyCubは次の行動を個別に利用できます。
+
+- Manual pose
+- Idle breathing
+- Look around
+- Right arm wave
+- Left arm wave
+- Both arms wave
+- Whole-body tilt
+- Random motion
+- Keyframe action
+
+`Start`と`Stop`は選択中のPyCubだけに作用します。手動関節スライダー、左右のgrip、
+世界座標を使う腕のIK（`Reach`）も個体ごとに独立しています。手動またはIK指令は
+即時反映され、時間変化する行動だけが継続更新されます。
+
+`Load action JSON`では`actions/`のキーフレーム行動を読み込めます。関節値は度、
+gripは`0.0`（開）から`1.0`（閉）です。
+
+### カメラとセンサー
+
+次のカメラ源を選択できます。
+
+- World camera
+- Mac webcam 0
+- 全PyCubのLeft eye / Right eye / Body camera
+- Agent Bundleが定義したカメラ
+- 一般のインポート3Dモデルに付くBody camera
+
+PyCubを追加すると、その個体の3種類のシミュレーションカメラが選択候補へ
+即時追加されます。最初のPyCubだけに固定されていません。主画面のカメラは
+3D画面上部または`Sensors`タブ、副画面は2画面表示中の`Second view`行から
+切り替えます。
+
+表示形式は`Sensor RGB`、`Sensor Depth`、`Segmentation`です。構造化センサーには
+joint state、IMU、contact、24本のrange rayがあり、関連する要素ごとに各機能を
+有効または無効にできます。
+
+`Export sensor snapshot`は表示画像とJSONスナップショットを保存します。
+
+Macカメラを初めて使うと、macOSのカメラ許可が表示される場合があります。物理Webcamは
+RGBのみです。DepthとSegmentationはシミュレーションカメラから生成されます。
+
+内部配列`depth_m`は、PyBulletのOpenGL depth bufferをnear/far平面から逆射影した、
+カメラ光軸方向のメートル単位Z距離です。Depth表示は0.05 mから5 mまでの固定対数色尺度を
+使用します。中央画素の距離は画像上に表示され、レイが届かない場所は黒になります。
+
+| Left eye RGB | Left eye depth | Left eye segmentation |
+| --- | --- | --- |
+| ![RGB](docs/images/left_eye_rgb.png) | ![Depth](docs/images/left_eye_depth.png) | ![Segmentation](docs/images/left_eye_segmentation.png) |
+
+### カメラ操作と2画面表示
+
+- `Camera`カーソル + 左ドラッグ: orbit
+- `Camera`カーソル + Shift + 左ドラッグ: pan
+- 中央ドラッグ／右ドラッグ: カーソルモードに関係なくpan
+- マウスホイール／トラックパッドスクロール: zoom
+- ダブルクリック: 選択要素へfocus
+- `Select`カーソル + クリック: 3Dシーン内のPyCub、机、物体、モデル、Agentを選択
+- `Move`カーソル + ドラッグ: WorldまたはTop画面で選択要素をX-Y移動
+- Cameraタブ: yaw、pitch、distance、shadow、画質
+- `Control + Tab` / `Shift + Control + Tab`: サイドバータブを切替
+
+選択要素は黄色い枠で表示されます。`Info`、`Actions`、`Sensors`から、その要素の
+情報、可能な行動、機能設定を開けます。
+
+Worldカメラのリセットと`Fit whole scene`は、最初のPyCubではなく全要素の
+空間境界を基準にします。TopとSideもシーン全体の中心を使用します。
+
+`Dual view`は表示を独立した2画面に分割します。たとえば左をWorld、右を別の
+PyCubの右眼、Depth、Segmentation、Mac webcamにできます。GUIまたはmacOSの
+`Command + D`、Windows/Linuxの`Control + D`で切り替えられます。
+
+Performanceは表示解像度の最大1.25倍、Balancedは1.65倍、Qualityは2倍で描画して
+縮小表示します。旧版の640 px引き伸ばしを避けつつ、負荷を明示的に選択できます。
+
+### 外部3Dエージェント
+
+行動を持たないモデルは`Import model`、モデル、カメラ、行動をまとめて追加する場合は
+`Import agent`を使います。
+
+サンプル:
+
+```text
+examples/agents/beacon_agent/
+  agent.json
+  beacon.urdf
+  controller.py
+```
+
+サンプルを読み込み、Agentを選択してActionsタブの`Start`を押すと、上下動、旋回、
+首関節の行動が始まります。
+
+Manifest形式とController APIは
+[docs/AGENT_BUNDLES.md](docs/AGENT_BUNDLES.md)を参照してください。ローカルControllerは
+通常のPythonコードとして実行されるため、信頼できるBundleだけを読み込んでください。
+
+![Imported Beacon Agent](docs/images/beacon_agent.png)
+
+### 性能
+
+標準設定は`Performance`、shadow無効です。
+
+- 静止シーンは表示変更時だけ再描画
+- 固定されたPyCubと机では変更関節だけを更新
+- 動的物体やモデルを追加すると240 HzのPyBullet物理へ自動切替
+- 行動中は壁時計に追従して更新
+- Balanced、Quality、shadowはCPU負荷と引き換えに画質を向上
+
+接触実験では物体の`Fixed base`を無効にし、質量を0より大きくしてください。
+
+### ヘッドレス実行
 
 ```bash
 python run_sim.py --headless --steps 480 \
@@ -199,16 +497,17 @@ python run_sim.py --headless --steps 480 \
 python run_sim.py --help
 ```
 
-## テスト
+### テスト
 
 ```bash
 python -m unittest discover -s tests -v
 ```
 
-初期シーン、複数PyCub、行動、IK、動的物理、RGB-D、segmentation、各種センサー、
-保存／再読込、外部 Agent Controller、統合GUIを検証します。
+初期シーン、複数PyCub、カメラ列挙、行動、IK、動的物理、RGB-D、メートル単位Depth、
+Segmentation、構造化センサー、シーン保存／読込、外部Controller、俯瞰配置、
+Undo/Redo、2画面、統合GUIを検証します。
 
-## 構成
+### 構成
 
 ```text
 pycubsim2/
@@ -217,18 +516,48 @@ pycubsim2/
   gui.py           統合GUI
   layout_editor.py 任意要素対応の俯瞰配置マップ
   plugins.py       Agent BundleとControllerホスト
-  sensors.py       RGB-D、segmentation、webcam
-  simulation.py    PyBulletシーン、物理、カメラ、IK
-assets/iCub/       公式 pyCub 由来の iCub URDF／mesh／skin
-actions/           読込可能なサンプル行動
+  sensors.py       RGB-D、Segmentation、Webcam
+  simulation.py    PyBulletシーン、物理、カメラ、選択、IK
+assets/iCub/       上流pyCub由来のiCub URDF／mesh／skin
+actions/           サンプルキーフレーム行動
 examples/agents/   外部3Dエージェントのサンプル
 layouts/           保存シーン
 ```
 
-## 出典とライセンス
+### Contributorsと上流作者
 
-iCubモデル資産は
-[rustlluk/pyCub](https://github.com/rustlluk/pyCub)
-commit `081ef65565355ca700604e40b94f8491c8e4d15a` の
-`icub_pybullet/iCub` を基にしています。詳細は
-[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) と [LICENSE](LICENSE) を参照してください。
+PyCubSim2:
+
+- [yuta4869](https://github.com/yuta4869): プロジェクト所有者、統合、
+  PyCubSim2の実装
+
+上流 [rustlluk/pyCub](https://github.com/rustlluk/pyCub):
+
+- [Lukáš Rustler](https://github.com/rustlluk): pyCubの作成者、主要作者
+- Matěj Hoffmann: 上流プロジェクトが示すpyCubフレームワーク論文の共同著者
+- [Ilia Zavidnyi](https://github.com/zavidnyi): 上流pyCubのGit履歴に記録された
+  コード貢献者
+
+PyCubSim2は派生シミュレーターであり、上流pyCubのモデル資産や元のシミュレーターに
+対する作者性を主張するものではありません。
+
+### 出典とライセンス
+
+iCubモデル資産は、CC BY 4.0で公開された
+[rustlluk/pyCub](https://github.com/rustlluk/pyCub) commit
+`081ef65565355ca700604e40b94f8491c8e4d15a`を基にしています。
+
+帰属とライセンスの詳細は[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)と
+[LICENSE](LICENSE)を参照してください。
+
+上流プロジェクトが示す引用形式:
+
+```bibtex
+@inproceedings{rustler2026pycub,
+  title={Learning with pyCub: A Simulation and Exercise Framework for Humanoid Robotics},
+  author={Lukas Rustler and Matej Hoffmann},
+  year={2026},
+  booktitle={17th International Conference on Robotics in Education (RiE 2026)},
+  organization={Springer}
+}
+```
