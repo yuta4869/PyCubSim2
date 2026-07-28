@@ -1,9 +1,5 @@
 # PyCubSim2
 
-[English](#english) | [日本語](#日本語)
-
-## English
-
 PyCubSim2 is an extensible PyBullet simulator that starts with one PyCub and
 one table. Robots, objects, sensors, behaviors, cameras, and external agents
 can all be configured from one integrated GUI.
@@ -17,7 +13,7 @@ API.
 
 ![PyCubSim2 default scene](docs/images/default_scene.png)
 
-### Quick Start
+## Quick Start
 
 On macOS, open `PyCubSim2.app` in Finder or run:
 
@@ -39,7 +35,7 @@ python run_sim.py
 original development machine, they can also use the existing
 `pycub-homeostatic` environment as a fallback.
 
-### Scene Editing
+## Scene Editing
 
 The `Scene` tab supports:
 
@@ -66,7 +62,7 @@ URDF mass and materials continue to use definitions from the imported file.
 
 ![Two PyCubs and an added object](docs/images/extensible_scene.png)
 
-### Top-Down Layout
+## Top-Down Layout
 
 The `Layout` tab provides a top-down map for every entity in the scene,
 including PyCubs, tables, primitives, imported models, and agent bundles.
@@ -84,7 +80,7 @@ including PyCubs, tables, primitives, imported models, and agent bundles.
 Placement is updated in the 3D view while dragging. One completed drag is
 stored as one undoable operation.
 
-### Actions
+## Actions
 
 Each PyCub can independently use:
 
@@ -106,7 +102,7 @@ continuous updates.
 `Load action JSON` loads keyframe actions from `actions/`. Joint values are in
 degrees, and grip values range from `0.0` open to `1.0` closed.
 
-### Cameras and Sensors
+## Cameras and Sensors
 
 Available camera sources include:
 
@@ -142,7 +138,7 @@ returns are black.
 | --- | --- | --- |
 | ![RGB](docs/images/left_eye_rgb.png) | ![Depth](docs/images/left_eye_depth.png) | ![Segmentation](docs/images/left_eye_segmentation.png) |
 
-### Camera Controls and Dual View
+## Camera Controls and Dual View
 
 - `Camera` cursor + left drag: orbit.
 - `Camera` cursor + Shift-left drag: pan.
@@ -171,7 +167,7 @@ Performance mode renders at up to 1.25 times the display resolution, Balanced
 at 1.65 times, and Quality at 2 times before downsampling. This avoids the old
 640-pixel upscale while retaining explicit performance choices.
 
-### External 3D Agents
+## External 3D Agents
 
 Use `Import model` for a model without behavior. Use `Import agent` when a
 model, cameras, and behavior should be added together.
@@ -194,7 +190,7 @@ trusted bundles.
 
 ![Imported Beacon Agent](docs/images/beacon_agent.png)
 
-### Performance
+## Performance
 
 The default is `Performance` quality with shadows disabled.
 
@@ -208,7 +204,7 @@ The default is `Performance` quality with shadows disabled.
 For contact experiments, disable `Fixed base` on an object and use a mass
 greater than zero.
 
-### Headless Mode
+## Headless Mode
 
 ```bash
 python run_sim.py --headless --steps 480 \
@@ -225,7 +221,7 @@ List all options:
 python run_sim.py --help
 ```
 
-### Tests
+## Tests
 
 ```bash
 python -m unittest discover -s tests -v
@@ -236,7 +232,7 @@ behaviors, IK, dynamic physics, RGB-D, metric depth, segmentation, structured
 sensors, scene save/load, external controllers, top-down placement,
 Undo/Redo, dual view, and integrated GUI construction.
 
-### Project Structure
+## Project Structure
 
 ```text
 pycubsim2/
@@ -253,7 +249,7 @@ examples/agents/   Example external agents
 layouts/           Saved scenes
 ```
 
-### Contributors and Upstream Credit
+## Contributors and Upstream Credit
 
 PyCubSim2:
 
@@ -272,7 +268,7 @@ Upstream [rustlluk/pyCub](https://github.com/rustlluk/pyCub):
 PyCubSim2 is a derivative simulator and does not claim authorship of the
 upstream pyCub model assets or original simulator work.
 
-### Source and License
+## Source and License
 
 The iCub model assets are based on
 [rustlluk/pyCub](https://github.com/rustlluk/pyCub) commit
@@ -295,8 +291,6 @@ The upstream project requests the following citation:
 
 ---
 
-## 日本語
-
 PyCubSim2は、1台のPyCubと1台の机から始め、ロボット、物体、センサー、
 行動、カメラ、外部エージェントを1つの統合GUIから構成できる拡張PyBullet
 シミュレーターです。
@@ -309,7 +303,7 @@ RGB-D表示、Webcam入力、2画面表示、外部エージェント機構を�
 
 ![PyCubSim2 default scene](docs/images/default_scene.png)
 
-### 起動
+## 起動
 
 macOSではFinderから`PyCubSim2.app`を開くか、次を実行します。
 
@@ -330,7 +324,7 @@ python run_sim.py
 `launch.command`とアプリは`pycubsim2`環境を優先します。開発元のマシンでは、
 既存の`pycub-homeostatic`環境もフォールバックとして利用できます。
 
-### シーン編集
+## シーン編集
 
 `Scene`タブでは次の操作ができます。
 
@@ -353,7 +347,7 @@ python run_sim.py
 
 ![Two PyCubs and an added object](docs/images/extensible_scene.png)
 
-### 俯瞰配置マップ
+## 俯瞰配置マップ
 
 `Layout`タブは、PyCub、机、プリミティブ、インポートしたモデル、Agent Bundleを
 含む全要素の俯瞰マップです。
@@ -367,7 +361,7 @@ python run_sim.py
 
 ドラッグ中も3D画面へ反映され、確定した1回のドラッグは1回のUndoで戻せます。
 
-### 行動
+## 行動
 
 各PyCubは次の行動を個別に利用できます。
 
@@ -388,7 +382,7 @@ python run_sim.py
 `Load action JSON`では`actions/`のキーフレーム行動を読み込めます。関節値は度、
 gripは`0.0`（開）から`1.0`（閉）です。
 
-### カメラとセンサー
+## カメラとセンサー
 
 次のカメラ源を選択できます。
 
@@ -420,7 +414,7 @@ RGBのみです。DepthとSegmentationはシミュレーションカメラから
 | --- | --- | --- |
 | ![RGB](docs/images/left_eye_rgb.png) | ![Depth](docs/images/left_eye_depth.png) | ![Segmentation](docs/images/left_eye_segmentation.png) |
 
-### カメラ操作と2画面表示
+## カメラ操作と2画面表示
 
 - `Camera`カーソル + 左ドラッグ: orbit
 - `Camera`カーソル + Shift + 左ドラッグ: pan
@@ -445,7 +439,7 @@ PyCubの右眼、Depth、Segmentation、Mac webcamにできます。GUIまたは
 Performanceは表示解像度の最大1.25倍、Balancedは1.65倍、Qualityは2倍で描画して
 縮小表示します。旧版の640 px引き伸ばしを避けつつ、負荷を明示的に選択できます。
 
-### 外部3Dエージェント
+## 外部3Dエージェント
 
 行動を持たないモデルは`Import model`、モデル、カメラ、行動をまとめて追加する場合は
 `Import agent`を使います。
@@ -468,7 +462,7 @@ Manifest形式とController APIは
 
 ![Imported Beacon Agent](docs/images/beacon_agent.png)
 
-### 性能
+## 性能
 
 標準設定は`Performance`、shadow無効です。
 
@@ -480,7 +474,7 @@ Manifest形式とController APIは
 
 接触実験では物体の`Fixed base`を無効にし、質量を0より大きくしてください。
 
-### ヘッドレス実行
+## ヘッドレス実行
 
 ```bash
 python run_sim.py --headless --steps 480 \
@@ -497,7 +491,7 @@ python run_sim.py --headless --steps 480 \
 python run_sim.py --help
 ```
 
-### テスト
+## テスト
 
 ```bash
 python -m unittest discover -s tests -v
@@ -507,7 +501,7 @@ python -m unittest discover -s tests -v
 Segmentation、構造化センサー、シーン保存／読込、外部Controller、俯瞰配置、
 Undo/Redo、2画面、統合GUIを検証します。
 
-### 構成
+## 構成
 
 ```text
 pycubsim2/
@@ -524,7 +518,7 @@ examples/agents/   外部3Dエージェントのサンプル
 layouts/           保存シーン
 ```
 
-### Contributorsと上流作者
+## Contributorsと上流作者
 
 PyCubSim2:
 
@@ -541,7 +535,7 @@ PyCubSim2:
 PyCubSim2は派生シミュレーターであり、上流pyCubのモデル資産や元のシミュレーターに
 対する作者性を主張するものではありません。
 
-### 出典とライセンス
+## 出典とライセンス
 
 iCubモデル資産は、CC BY 4.0で公開された
 [rustlluk/pyCub](https://github.com/rustlluk/pyCub) commit
