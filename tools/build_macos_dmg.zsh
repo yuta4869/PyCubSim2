@@ -17,12 +17,39 @@ fi
 
 if [[ -n "${PYTHON:-}" ]]; then
     PYTHON_BIN="$PYTHON"
-elif [[ -x "/opt/miniconda3/envs/pycubsim2/bin/python" ]]; then
-    PYTHON_BIN="/opt/miniconda3/envs/pycubsim2/bin/python"
-elif [[ -x "/opt/miniconda3/envs/pycub-homeostatic/bin/python" ]]; then
-    PYTHON_BIN="/opt/miniconda3/envs/pycub-homeostatic/bin/python"
 else
-    PYTHON_BIN="$(command -v python3)"
+    PYTHON_CANDIDATES=(
+        "$HOME/miniforge3/envs/pycubsim2/bin/python"
+        "$HOME/miniconda3/envs/pycubsim2/bin/python"
+        "$HOME/anaconda3/envs/pycubsim2/bin/python"
+        "$HOME/mambaforge/envs/pycubsim2/bin/python"
+        "/opt/homebrew/Caskroom/miniforge/base/envs/pycubsim2/bin/python"
+        "/opt/homebrew/Caskroom/miniconda/base/envs/pycubsim2/bin/python"
+        "/opt/miniforge3/envs/pycubsim2/bin/python"
+        "/opt/miniconda3/envs/pycubsim2/bin/python"
+        "/opt/anaconda3/envs/pycubsim2/bin/python"
+        "/usr/local/miniforge3/envs/pycubsim2/bin/python"
+        "/usr/local/miniconda3/envs/pycubsim2/bin/python"
+        "/usr/local/anaconda3/envs/pycubsim2/bin/python"
+    )
+    PYTHON_BIN=""
+
+    for CANDIDATE in "${PYTHON_CANDIDATES[@]}"; do
+        if [[ -x "$CANDIDATE" ]]; then
+            PYTHON_BIN="$CANDIDATE"
+            break
+        fi
+    done
+
+    if [[ -z "$PYTHON_BIN" ]]; then
+        PYTHON_BIN="$(command -v python3 || true)"
+    fi
+fi
+
+if [[ -z "$PYTHON_BIN" || ! -x "$PYTHON_BIN" ]]; then
+    print -u2 "No usable Python executable was found for the macOS build."
+    print -u2 "Set PYTHON=/absolute/path/to/python and try again."
+    exit 1
 fi
 
 if ! "$PYTHON_BIN" -c "import PyInstaller" 2>/dev/null; then

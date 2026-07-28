@@ -78,18 +78,32 @@ xcode-select --install
 sudo xcodebuild -license accept
 ```
 
-### Existing checkout
+### Finder and source launchers
 
-From an already downloaded checkout:
+After creating the `pycubsim2` environment, the repository's
+`PyCubSim2.app` can be double-clicked in Finder. `launch.command` can also be
+double-clicked or run from a terminal:
 
 ```bash
 cd /path/to/PyCubSim2
 ./launch.command
 ```
 
-`launch.command` and the app bundle prefer the `pycubsim2` environment. On the
-original development machine, they can also use the existing
-`pycub-homeostatic` environment as a fallback.
+These are source launchers, not the standalone app from the DMG. They search
+common Miniforge, Miniconda, Anaconda, Mambaforge, and Homebrew locations for
+an external Conda environment named `pycubsim2`. Before starting, they verify
+that `numpy`, `pybullet`, `PIL`, and `cv2` can be imported. They do not
+silently fall back to an unrelated system Python.
+
+If the Finder app does not start, inspect the launcher log:
+
+```bash
+cat /tmp/pycubsim2.log
+```
+
+The repository's `PyCubSim2.app` requires the external Conda environment. The
+PyInstaller-generated `dist/PyCubSim2.app` includes Python and its dependencies
+and normally does not require Conda on the receiving Mac.
 
 When an unpinned app quits, macOS removes its icon from the Dock. To keep
 PyCubSim2 there, open it once, Control-click its Dock icon, then select
@@ -317,12 +331,31 @@ xcode-select --install
 sudo xcodebuild -license accept
 ```
 
-既にダウンロード済みのフォルダでは次でも起動できます。
+### Finderとソース版ランチャー
+
+`pycubsim2`環境を作成した後は、リポジトリ内の`PyCubSim2.app`をFinderで
+ダブルクリックして起動できます。`launch.command`もダブルクリックするか、
+Terminalから実行できます。
 
 ```bash
 cd /path/to/PyCubSim2
 ./launch.command
 ```
+
+これらはDMGの自己完結版ではなく、ソース版ランチャーです。Miniforge、
+Miniconda、Anaconda、Mambaforge、Homebrewの一般的な配置から、外部Conda環境
+`pycubsim2`を探します。起動前に`numpy`、`pybullet`、`PIL`、`cv2`を
+importできるか確認し、無関係なシステムPythonへ暗黙に切り替えません。
+
+Finderから起動できない場合は、次のログを確認してください。
+
+```bash
+cat /tmp/pycubsim2.log
+```
+
+リポジトリ内の`PyCubSim2.app`には外部Conda環境が必要です。一方、
+PyInstallerで生成する`dist/PyCubSim2.app`にはPythonと依存関係が含まれ、
+受け取るMacでは原則としてCondaを必要としません。
 
 ## 主な機能
 
