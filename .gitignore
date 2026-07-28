@@ -2,8 +2,9 @@ __pycache__/
 *.py[cod]
 .DS_Store
 .pytest_cache/
+/build/
+/dist/
 artifacts/*
 !artifacts/.gitkeep
 layouts/*.json
 !layouts/default_scene.json
-

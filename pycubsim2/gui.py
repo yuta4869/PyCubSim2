@@ -3,6 +3,7 @@ from __future__ import annotations
 import copy
 import json
 import math
+import sys
 import time
 import tkinter as tk
 from pathlib import Path
@@ -23,7 +24,11 @@ from .simulation import PROJECT_ROOT, PyCubSim2Simulation
 
 SCENE_DIR = PROJECT_ROOT / "layouts"
 ACTION_DIR = PROJECT_ROOT / "actions"
-ARTIFACT_DIR = PROJECT_ROOT / "artifacts"
+ARTIFACT_DIR = (
+    Path.home() / "Documents" / "PyCubSim2"
+    if getattr(sys, "frozen", False)
+    else PROJECT_ROOT / "artifacts"
+)
 
 
 class ScrollableFrame(ttk.Frame):

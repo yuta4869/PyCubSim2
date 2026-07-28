@@ -10,7 +10,12 @@ def prepared_icub_urdf(source: str | Path) -> Path:
     """Create a cached iCub URDF with a physical root and absolute mesh paths."""
 
     source_path = Path(source).resolve()
-    digest = hashlib.sha256(source_path.read_bytes()).hexdigest()[:12]
+    digest_builder = hashlib.sha256()
+    digest_builder.update(b"prepared-icub-v2\0")
+    digest_builder.update(str(source_path).encode("utf-8"))
+    digest_builder.update(b"\0")
+    digest_builder.update(source_path.read_bytes())
+    digest = digest_builder.hexdigest()[:12]
     cache_dir = Path(tempfile.gettempdir()) / "pycubsim2"
     cache_dir.mkdir(parents=True, exist_ok=True)
     destination = cache_dir / f"{source_path.stem}_prepared_{digest}.urdf"
@@ -52,4 +57,3 @@ def validate_model_path(path: str | Path) -> Path:
             f"Unsupported model format {model_path.suffix!r}. Supported: {supported}"
         )
     return model_path
-

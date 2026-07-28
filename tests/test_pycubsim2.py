@@ -7,6 +7,7 @@ import sys
 import tempfile
 import tkinter as tk
 import unittest
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 import numpy as np
@@ -14,6 +15,7 @@ import pybullet as p
 
 from pycubsim2.actions import KeyframeAction
 from pycubsim2.config import SceneConfig, Transform, default_scene
+from pycubsim2.model import prepared_icub_urdf
 from pycubsim2.plugins import AgentManifest
 from pycubsim2.sensors import depth_colormap
 from pycubsim2.simulation import PROJECT_ROOT, PyCubSim2Simulation
@@ -42,6 +44,44 @@ class ConfigTests(unittest.TestCase):
         self.assertGreater(len(action.keyframes), 1)
         self.assertEqual(manifest.name, "Beacon Agent")
         self.assertEqual(manifest.cameras[0].name, "head_camera")
+
+    def test_prepared_urdf_cache_tracks_application_location(self) -> None:
+        source_xml = """\
+<?xml version="1.0"?>
+<robot name="test">
+  <link name="body">
+    <visual>
+      <geometry>
+        <mesh filename="package://iCub/meshes/body.obj"/>
+      </geometry>
+    </visual>
+  </link>
+</robot>
+"""
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source_a = root / "first" / "iCub" / "full.urdf"
+            source_b = root / "second" / "iCub" / "full.urdf"
+            for source in (source_a, source_b):
+                source.parent.mkdir(parents=True)
+                source.write_text(source_xml, encoding="utf-8")
+
+            prepared_a = prepared_icub_urdf(source_a)
+            prepared_b = prepared_icub_urdf(source_b)
+
+            self.assertNotEqual(prepared_a, prepared_b)
+            mesh_a = ET.parse(prepared_a).find(".//mesh")
+            mesh_b = ET.parse(prepared_b).find(".//mesh")
+            self.assertIsNotNone(mesh_a)
+            self.assertIsNotNone(mesh_b)
+            self.assertEqual(
+                mesh_a.get("filename"),
+                str(source_a.resolve().parent / "meshes" / "body.obj"),
+            )
+            self.assertEqual(
+                mesh_b.get("filename"),
+                str(source_b.resolve().parent / "meshes" / "body.obj"),
+            )
 
 
 class SimulationTests(unittest.TestCase):

@@ -35,6 +35,44 @@ python run_sim.py
 original development machine, they can also use the existing
 `pycub-homeostatic` environment as a fallback.
 
+When an unpinned app quits, macOS removes its icon from the Dock. To keep
+PyCubSim2 there, open it once, Control-click its Dock icon, then select
+`Options` > `Keep in Dock`.
+
+## Standalone macOS DMG
+
+The distribution build contains Python, Tk, PyBullet, OpenCV, Pillow, NumPy,
+the PyCub model, and bundled examples. The receiving Mac does not need Conda
+or a separate Python environment.
+
+Open the DMG and drag `PyCubSim2.app` onto the included `Applications`
+shortcut. The current local build targets Apple Silicon (`arm64`).
+
+Build it locally with:
+
+```bash
+python -m pip install -r requirements-build.txt
+./tools/build_macos_dmg.zsh
+```
+
+Outputs:
+
+```text
+dist/PyCubSim2.app
+dist/PyCubSim2-1.2-macos-arm64.dmg
+```
+
+The default build is ad-hoc signed for local testing. For distribution with an
+Apple Developer ID and optional notarization:
+
+```bash
+CODESIGN_IDENTITY="Developer ID Application: Your Name (TEAMID)" \
+NOTARY_PROFILE="notary-profile" \
+./tools/build_macos_dmg.zsh
+```
+
+`NOTARY_PROFILE` is the Keychain profile created for `xcrun notarytool`.
+
 ## Scene Editing
 
 The `Scene` tab supports:
@@ -253,6 +291,8 @@ assets/iCub/       iCub URDF, meshes, and skin data from rustlluk/pyCub
 actions/           Example keyframe actions
 examples/agents/   Example external agents
 layouts/           Saved scenes
+packaging/         PyInstaller macOS application specification
+tools/             Reproducible DMG build script
 ```
 
 ## Contributors and References
@@ -329,6 +369,43 @@ python run_sim.py
 
 `launch.command`とアプリは`pycubsim2`環境を優先します。開発元のマシンでは、
 既存の`pycub-homeostatic`環境もフォールバックとして利用できます。
+
+Dockへ固定していないアプリは、終了するとmacOSの通常動作によってDockから消えます。
+残す場合は、起動中のDockアイコンをControl-clickし、
+`オプション` > `Dockに追加`を選択してください。
+
+## 自己完結macOS DMG
+
+配布版にはPython、Tk、PyBullet、OpenCV、Pillow、NumPy、PyCubモデル、
+サンプルを同梱します。受け取るMac側にCondaや別のPython環境は必要ありません。
+
+DMGを開き、`PyCubSim2.app`を同梱の`Applications`ショートカットへドラッグします。
+現在のローカルビルドはApple Silicon（`arm64`）用です。
+
+ローカルで再作成する場合:
+
+```bash
+python -m pip install -r requirements-build.txt
+./tools/build_macos_dmg.zsh
+```
+
+生成物:
+
+```text
+dist/PyCubSim2.app
+dist/PyCubSim2-1.2-macos-arm64.dmg
+```
+
+標準ビルドはローカル検証用のad-hoc署名です。Apple Developer IDでの配布署名と
+Notarizationを行う場合:
+
+```bash
+CODESIGN_IDENTITY="Developer ID Application: Your Name (TEAMID)" \
+NOTARY_PROFILE="notary-profile" \
+./tools/build_macos_dmg.zsh
+```
+
+`NOTARY_PROFILE`には`xcrun notarytool`用にKeychainへ作成したprofile名を指定します。
 
 ## シーン編集
 
@@ -526,6 +603,8 @@ assets/iCub/       参考元pyCub由来のiCub URDF／mesh／skin
 actions/           サンプルキーフレーム行動
 examples/agents/   外部3Dエージェントのサンプル
 layouts/           保存シーン
+packaging/         PyInstaller macOSアプリ仕様
+tools/             再現可能なDMGビルドスクリプト
 ```
 
 ## Contributorsと参考先

@@ -8,7 +8,6 @@ from typing import Any
 
 import numpy as np
 import pybullet as p
-import pybullet_data
 
 from .actions import (
     BUILTIN_BEHAVIORS,
@@ -190,9 +189,6 @@ class PyCubSim2Simulation:
     def _initialize_world(self, config: SceneConfig) -> None:
         self.config = config.validated()
         p.resetSimulation(physicsClientId=self.client_id)
-        p.setAdditionalSearchPath(
-            pybullet_data.getDataPath(), physicsClientId=self.client_id
-        )
         p.setGravity(
             0.0, 0.0, self.config.gravity, physicsClientId=self.client_id
         )
@@ -205,14 +201,23 @@ class PyCubSim2Simulation:
             deterministicOverlappingPairs=1,
             physicsClientId=self.client_id,
         )
-        self.floor_body_id = p.loadURDF(
-            "plane.urdf", useFixedBase=True, physicsClientId=self.client_id
+        floor_half_height = 0.02
+        floor_collision = p.createCollisionShape(
+            p.GEOM_BOX,
+            halfExtents=(100.0, 100.0, floor_half_height),
+            physicsClientId=self.client_id,
         )
-        p.changeVisualShape(
-            self.floor_body_id,
-            -1,
+        floor_visual = p.createVisualShape(
+            p.GEOM_BOX,
+            halfExtents=(100.0, 100.0, floor_half_height),
             rgbaColor=(0.76, 0.79, 0.78, 1.0),
-            textureUniqueId=-1,
+            physicsClientId=self.client_id,
+        )
+        self.floor_body_id = p.createMultiBody(
+            baseMass=0.0,
+            baseCollisionShapeIndex=floor_collision,
+            baseVisualShapeIndex=floor_visual,
+            basePosition=(0.0, 0.0, -floor_half_height),
             physicsClientId=self.client_id,
         )
         self.entities.clear()
