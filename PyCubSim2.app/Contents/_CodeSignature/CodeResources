@@ -3,9 +3,26 @@
 <plist version="1.0">
 <dict>
 	<key>files</key>
-	<dict/>
+	<dict>
+		<key>Resources/PyCubSim2.icns</key>
+		<data>
+		dhsKuw+C+fkKev6BPrWnBf4hXOk=
+		</data>
+	</dict>
 	<key>files2</key>
-	<dict/>
+	<dict>
+		<key>Resources/PyCubSim2.icns</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			dhsKuw+C+fkKev6BPrWnBf4hXOk=
+			</data>
+			<key>hash2</key>
+			<data>
+			tGXid6fkrUcXYEGVcR1Eh2sOkS8OBsbxFZxITJVqYxE=
+			</data>
+		</dict>
+	</dict>
 	<key>rules</key>
 	<dict>
 		<key>^Resources/</key>
