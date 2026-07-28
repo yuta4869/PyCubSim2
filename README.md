@@ -62,9 +62,9 @@ URDF mass and materials continue to use definitions from the imported file.
 
 ![Two PyCubs and an added object](docs/images/extensible_scene.png)
 
-## Top-Down Layout
+## Layout Map
 
-The `Layout` tab provides a top-down map for every entity in the scene,
+The `Layout` tab provides a placement map for every entity in the scene,
 including PyCubs, tables, primitives, imported models, and agent bundles.
 
 - Click an entity to select it and synchronize the Scene, Actions, and Sensors
@@ -229,7 +229,7 @@ python -m unittest discover -s tests -v
 
 The suite covers the default scene, multiple PyCubs, camera enumeration,
 behaviors, IK, dynamic physics, RGB-D, metric depth, segmentation, structured
-sensors, scene save/load, external controllers, top-down placement,
+sensors, scene save/load, external controllers, placement-map editing,
 Undo/Redo, dual view, and integrated GUI construction.
 
 ## Project Structure
@@ -239,7 +239,7 @@ pycubsim2/
   actions.py       Built-in and JSON keyframe actions
   config.py        Scene, entity, and sensor configuration
   gui.py           Integrated GUI
-  layout_editor.py Top-down editor for arbitrary entities
+  layout_editor.py Placement-map editor for arbitrary entities
   plugins.py       Agent bundles and controller host
   sensors.py       RGB-D, segmentation, and webcam support
   simulation.py    PyBullet scene, physics, cameras, picking, and IK
@@ -347,10 +347,10 @@ python run_sim.py
 
 ![Two PyCubs and an added object](docs/images/extensible_scene.png)
 
-## 俯瞰配置マップ
+## 配置マップ
 
 `Layout`タブは、PyCub、机、プリミティブ、インポートしたモデル、Agent Bundleを
-含む全要素の俯瞰マップです。
+含む全要素の配置マップです。
 
 - 要素をクリック: 対象を選択し、Scene、Actions、Sensorsタブと同期
 - 要素をドラッグ: X-Y平面上で移動
@@ -498,7 +498,7 @@ python -m unittest discover -s tests -v
 ```
 
 初期シーン、複数PyCub、カメラ列挙、行動、IK、動的物理、RGB-D、メートル単位Depth、
-Segmentation、構造化センサー、シーン保存／読込、外部Controller、俯瞰配置、
+Segmentation、構造化センサー、シーン保存／読込、外部Controller、配置マップ、
 Undo/Redo、2画面、統合GUIを検証します。
 
 ## 構成
@@ -508,7 +508,7 @@ pycubsim2/
   actions.py       内蔵行動とJSONキーフレーム
   config.py        シーン／要素／センサー設定
   gui.py           統合GUI
-  layout_editor.py 任意要素対応の俯瞰配置マップ
+  layout_editor.py 任意要素対応の配置マップ
   plugins.py       Agent BundleとControllerホスト
   sensors.py       RGB-D、Segmentation、Webcam
   simulation.py    PyBulletシーン、物理、カメラ、選択、IK
