@@ -15,20 +15,8 @@ Python API.
 
 ## Quick Start
 
-### Option 1: Standalone macOS app
-
-Download the macOS DMG from the GitHub Releases page, open it, and drag
-`PyCubSim2.app` to `Applications`.
-
-The standalone build already includes Python, Tk, PyBullet, OpenCV, Pillow,
-NumPy, the PyCub model, and the bundled examples. Conda and a separate Python
-environment are not required on the receiving Mac.
-
-The current macOS build targets Apple Silicon (`arm64`). An unnotarized build
-may display a macOS security warning. In that case, open **System Settings >
-Privacy & Security** and explicitly allow the application.
-
-### Option 2: Run from source with Conda
+PyCubSim2 does not currently publish a macOS DMG. Run it from source with
+Conda using the following steps.
 
 Clone or download the complete repository first. The repository already
 contains `environment.yml`; it is not downloaded separately.
@@ -89,11 +77,11 @@ cd /path/to/PyCubSim2
 ./launch.command
 ```
 
-These are source launchers, not the standalone app from the DMG. They search
-common Miniforge, Miniconda, Anaconda, Mambaforge, and Homebrew locations for
-an external Conda environment named `pycubsim2`. Before starting, they verify
-that `numpy`, `pybullet`, `PIL`, and `cv2` can be imported. They do not
-silently fall back to an unrelated system Python.
+These source launchers search common Miniforge, Miniconda, Anaconda,
+Mambaforge, and Homebrew locations for an external Conda environment named
+`pycubsim2`. Before starting, they verify that `numpy`, `pybullet`, `PIL`, and
+`cv2` can be imported. They do not silently fall back to an unrelated system
+Python.
 
 If the Finder app does not start, inspect the launcher log:
 
@@ -101,40 +89,11 @@ If the Finder app does not start, inspect the launcher log:
 cat /tmp/pycubsim2.log
 ```
 
-The repository's `PyCubSim2.app` requires the external Conda environment. The
-PyInstaller-generated `dist/PyCubSim2.app` includes Python and its dependencies
-and normally does not require Conda on the receiving Mac.
+The repository's `PyCubSim2.app` requires the external Conda environment.
 
 When an unpinned app quits, macOS removes its icon from the Dock. To keep
 PyCubSim2 there, open it once, Control-click its Dock icon, then select
 `Options` > `Keep in Dock`.
-
-## Standalone macOS DMG
-
-Build the app and DMG locally with:
-
-```bash
-python -m pip install -r requirements-build.txt
-./tools/build_macos_dmg.zsh
-```
-
-Outputs:
-
-```text
-dist/PyCubSim2.app
-dist/PyCubSim2-1.2-macos-arm64.dmg
-```
-
-The default build is ad-hoc signed for local testing. For distribution with an
-Apple Developer ID and optional notarization:
-
-```bash
-CODESIGN_IDENTITY="Developer ID Application: Your Name (TEAMID)" \
-NOTARY_PROFILE="notary-profile" \
-./tools/build_macos_dmg.zsh
-```
-
-`NOTARY_PROFILE` is the Keychain profile created for `xcrun notarytool`.
 
 ## Main Features
 
@@ -218,7 +177,7 @@ actions/           Example keyframe actions
 examples/agents/   Example external agents
 layouts/           Saved scenes
 packaging/         PyInstaller macOS application specification
-tools/             Reproducible DMG build script
+tools/             Local macOS packaging utilities
 ```
 
 ## Contributors and References
@@ -271,19 +230,8 @@ PyCubSim2は、1台のPyCubと1台の机から始め、ロボット、物体、�
 
 ## 起動方法
 
-### 方法1：macOS用DMG
-
-GitHub ReleasesからDMGをダウンロードし、開いた後に`PyCubSim2.app`を
-`Applications`へドラッグしてください。
-
-配布版にはPython、Tk、PyBullet、OpenCV、Pillow、NumPy、PyCubモデル、
-サンプルが同梱されています。受け取るMac側にCondaや別のPython環境は
-必要ありません。現在のmacOS版はApple Silicon（`arm64`）用です。
-
-未公証版ではmacOSの警告が表示される場合があります。その場合は
-**システム設定 > プライバシーとセキュリティ**から明示的に許可してください。
-
-### 方法2：Condaでソースから実行
+現在、macOS用DMGは公開していません。次の手順でConda環境を作成し、
+ソースから起動してください。
 
 最初にリポジトリ全体をcloneまたはZIPでダウンロードしてください。
 `environment.yml`はリポジトリに含まれており、別途ダウンロードする必要はありません。
@@ -342,10 +290,10 @@ cd /path/to/PyCubSim2
 ./launch.command
 ```
 
-これらはDMGの自己完結版ではなく、ソース版ランチャーです。Miniforge、
-Miniconda、Anaconda、Mambaforge、Homebrewの一般的な配置から、外部Conda環境
-`pycubsim2`を探します。起動前に`numpy`、`pybullet`、`PIL`、`cv2`を
-importできるか確認し、無関係なシステムPythonへ暗黙に切り替えません。
+これらのソース版ランチャーは、Miniforge、Miniconda、Anaconda、Mambaforge、
+Homebrewの一般的な配置から外部Conda環境`pycubsim2`を探します。起動前に
+`numpy`、`pybullet`、`PIL`、`cv2`をimportできるか確認し、無関係な
+システムPythonへ暗黙に切り替えません。
 
 Finderから起動できない場合は、次のログを確認してください。
 
@@ -353,9 +301,7 @@ Finderから起動できない場合は、次のログを確認してくださ�
 cat /tmp/pycubsim2.log
 ```
 
-リポジトリ内の`PyCubSim2.app`には外部Conda環境が必要です。一方、
-PyInstallerで生成する`dist/PyCubSim2.app`にはPythonと依存関係が含まれ、
-受け取るMacでは原則としてCondaを必要としません。
+リポジトリ内の`PyCubSim2.app`には外部Conda環境が必要です。
 
 ## 主な機能
 
