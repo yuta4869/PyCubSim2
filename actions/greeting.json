@@ -1,0 +1,58 @@
+{
+  "name": "Greeting",
+  "duration": 4.0,
+  "loop": true,
+  "keyframes": [
+    {
+      "time": 0.0,
+      "joints": {
+        "neck_yaw": 0,
+        "r_shoulder_pitch": -40,
+        "r_shoulder_roll": 42,
+        "r_elbow": 62
+      },
+      "right_grip": 0.15
+    },
+    {
+      "time": 1.0,
+      "joints": {
+        "neck_yaw": -8,
+        "r_shoulder_pitch": -52,
+        "r_shoulder_roll": 72,
+        "r_elbow": 90
+      },
+      "right_grip": 0.0
+    },
+    {
+      "time": 2.0,
+      "joints": {
+        "neck_yaw": 8,
+        "r_shoulder_pitch": -48,
+        "r_shoulder_roll": 48,
+        "r_elbow": 52
+      },
+      "right_grip": 0.0
+    },
+    {
+      "time": 3.0,
+      "joints": {
+        "neck_yaw": -8,
+        "r_shoulder_pitch": -52,
+        "r_shoulder_roll": 72,
+        "r_elbow": 90
+      },
+      "right_grip": 0.0
+    },
+    {
+      "time": 4.0,
+      "joints": {
+        "neck_yaw": 0,
+        "r_shoulder_pitch": -40,
+        "r_shoulder_roll": 42,
+        "r_elbow": 62
+      },
+      "right_grip": 0.15
+    }
+  ]
+}
+

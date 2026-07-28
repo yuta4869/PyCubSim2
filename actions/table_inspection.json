@@ -1,0 +1,40 @@
+{
+  "name": "Table inspection",
+  "duration": 5.0,
+  "loop": false,
+  "keyframes": [
+    {
+      "time": 0.0,
+      "joints": {
+        "torso_pitch": 0,
+        "neck_pitch": -4,
+        "neck_yaw": 0
+      }
+    },
+    {
+      "time": 1.5,
+      "joints": {
+        "torso_pitch": 9,
+        "neck_pitch": -18,
+        "neck_yaw": -24
+      }
+    },
+    {
+      "time": 3.2,
+      "joints": {
+        "torso_pitch": 9,
+        "neck_pitch": -18,
+        "neck_yaw": 24
+      }
+    },
+    {
+      "time": 5.0,
+      "joints": {
+        "torso_pitch": 0,
+        "neck_pitch": -4,
+        "neck_yaw": 0
+      }
+    }
+  ]
+}
+

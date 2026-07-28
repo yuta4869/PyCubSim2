@@ -1,0 +1,75 @@
+{
+  "format_version": 1,
+  "gravity": -9.81,
+  "physics_hz": 240,
+  "control_hz": 60,
+  "entities": [
+    {
+      "entity_id": "pycub_1",
+      "name": "PyCub 1",
+      "kind": "pycub",
+      "transform": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.65,
+        "roll_deg": 0.0,
+        "pitch_deg": 0.0,
+        "yaw_deg": 180.0
+      },
+      "fixed_base": true,
+      "scale": 1.0,
+      "model_path": "",
+      "manifest_path": "",
+      "primitive_shape": "box",
+      "size": [0.16, 0.16, 0.16],
+      "mass": 0.0,
+      "color": [0.82, 0.18, 0.12, 1.0],
+      "behavior": "Manual pose",
+      "sensors": {
+        "camera_mount": "left_eye",
+        "rgb": true,
+        "depth": true,
+        "segmentation": false,
+        "joints": true,
+        "imu": true,
+        "contact": true,
+        "lidar": false
+      },
+      "metadata": {}
+    },
+    {
+      "entity_id": "table_1",
+      "name": "Table 1",
+      "kind": "table",
+      "transform": {
+        "x": -0.55,
+        "y": 0.0,
+        "z": 0.0,
+        "roll_deg": 0.0,
+        "pitch_deg": 0.0,
+        "yaw_deg": 0.0
+      },
+      "fixed_base": true,
+      "scale": 1.0,
+      "model_path": "",
+      "manifest_path": "",
+      "primitive_shape": "box",
+      "size": [0.72, 1.05, 0.525],
+      "mass": 0.0,
+      "color": [0.68, 0.4, 0.18, 1.0],
+      "behavior": "Manual pose",
+      "sensors": {
+        "camera_mount": "body",
+        "rgb": false,
+        "depth": false,
+        "segmentation": false,
+        "joints": false,
+        "imu": false,
+        "contact": false,
+        "lidar": false
+      },
+      "metadata": {}
+    }
+  ]
+}
+

@@ -1,0 +1,16 @@
+#!/bin/zsh
+
+PROJECT_DIR="$(cd "$(dirname "$0")/../../.." && pwd)"
+LOG_FILE="/tmp/pycubsim2.log"
+
+if [[ -x "/opt/miniconda3/envs/pycubsim2/bin/python" ]]; then
+    PYTHON="/opt/miniconda3/envs/pycubsim2/bin/python"
+elif [[ -x "/opt/miniconda3/envs/pycub-homeostatic/bin/python" ]]; then
+    PYTHON="/opt/miniconda3/envs/pycub-homeostatic/bin/python"
+else
+    PYTHON="$(command -v python3)"
+fi
+
+cd "$PROJECT_DIR" || exit 1
+: >"$LOG_FILE"
+exec env PYTHONUNBUFFERED=1 "$PYTHON" run_sim.py >>"$LOG_FILE" 2>&1

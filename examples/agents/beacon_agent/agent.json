@@ -1,0 +1,28 @@
+{
+  "format_version": 1,
+  "name": "Beacon Agent",
+  "model": {
+    "path": "beacon.urdf",
+    "fixed_base": true,
+    "scale": 1.0
+  },
+  "spawn": {
+    "position": [-0.35, 0.32, 0.55],
+    "rpy_deg": [0, 0, 0]
+  },
+  "controller": "controller.py:Controller",
+  "cameras": [
+    {
+      "name": "head_camera",
+      "link": "head",
+      "offset": [0.10, 0.0, 0.0],
+      "forward": [1.0, 0.0, 0.0],
+      "up": [0.0, 0.0, 1.0],
+      "fov_deg": 72
+    }
+  ],
+  "metadata": {
+    "description": "Example 3D model and behavior bundle for PyCubSim2."
+  }
+}
+
