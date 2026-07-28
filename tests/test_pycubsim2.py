@@ -3,6 +3,7 @@ from __future__ import annotations
 import copy
 import json
 import math
+import sys
 import tempfile
 import tkinter as tk
 import unittest
@@ -283,6 +284,12 @@ class GuiSmokeTests(unittest.TestCase):
         app = PyCubSim2App(root, simulation)
         root.withdraw()
         try:
+            self.assertIsNotNone(app._application_icon)
+            self.assertEqual(app._application_icon.width(), 1024)
+            self.assertEqual(app._application_icon.height(), 1024)
+            if sys.platform == "darwin":
+                self.assertTrue(app._macos_dock_icon_configured)
+
             app.add_pycub()
             selected = app.selected_entity_id
             self.assertIsNotNone(selected)

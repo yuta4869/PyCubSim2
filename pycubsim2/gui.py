@@ -16,6 +16,7 @@ from .actions import BUILTIN_BEHAVIORS, MANUAL_JOINT_NAMES
 from .config import EntitySpec, SceneConfig, Transform
 from .dialogs import ModelImportDialog, PrimitiveDialog
 from .layout_editor import SceneMapEditor
+from .platform_ui import configure_application_icon
 from .sensors import WebcamCapture
 from .simulation import PROJECT_ROOT, PyCubSim2Simulation
 
@@ -172,6 +173,10 @@ class PyCubSim2App:
 
     def _configure_window(self) -> None:
         self.root.title("PyCubSim2")
+        (
+            self._application_icon,
+            self._macos_dock_icon_configured,
+        ) = configure_application_icon(self.root)
         screen_width = self.root.winfo_screenwidth()
         screen_height = self.root.winfo_screenheight()
         width = min(1600, max(1180, screen_width - 60))

@@ -245,6 +245,7 @@ pycubsim2/
   config.py        Scene, entity, and sensor configuration
   gui.py           Integrated GUI
   layout_editor.py Placement-map editor for arbitrary entities
+  platform_ui.py  Window and macOS Dock icon integration
   plugins.py       Agent bundles and controller host
   sensors.py       RGB-D, segmentation, and webcam support
   simulation.py    PyBullet scene, physics, cameras, picking, and IK
@@ -517,6 +518,7 @@ pycubsim2/
   config.py        シーン／要素／センサー設定
   gui.py           統合GUI
   layout_editor.py 任意要素対応の配置マップ
+  platform_ui.py  ウインドウ／macOS Dockアイコン連携
   plugins.py       Agent BundleとControllerホスト
   sensors.py       RGB-D、Segmentation、Webcam
   simulation.py    PyBulletシーン、物理、カメラ、選択、IK
