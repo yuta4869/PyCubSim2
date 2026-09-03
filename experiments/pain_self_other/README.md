@@ -1,5 +1,7 @@
 # PyCubSim2 Physical Self/Other DMBN Study
 
+**実験条件、全主要数値、成功・負の結果、10点の図をまとめた日本語報告書**: [`reports/DETAILED_EXPERIMENT_REPORT.md`](reports/DETAILED_EXPERIMENT_REPORT.md)
+
 > We investigate whether multimodal bodily experience learned through
 > Deep Modality Blending Networks can support a progression from
 > prediction of one's own bodily consequences to inference of another
