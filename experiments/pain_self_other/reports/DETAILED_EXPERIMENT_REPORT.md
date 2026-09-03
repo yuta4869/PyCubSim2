@@ -559,6 +559,19 @@ GUI testの`NSInternalInconsistencyException`はpassとして数えていない�
 
 図は [`report_figures.py`](../report_figures.py) で保存済みmetrics/raw metadata/prediction arraysから再生成できる。
 
+### 17.4 シミュレーション動画
+
+**動画はレンダリング用に作り直した架空映像ではなく、各実験で保存したPyCub左眼RGBと240 Hz物理ログを時刻同期して再生したものである。** 原画像は128×128、30 Hz、2秒間であり、視認性のため最近傍拡大し、各frameを2回表示して0.5倍速の4秒動画にした。
+
+| No. | 動画 | 内容 | 解像度 / 長さ |
+|---:|---|---|---|
+| **1** | [01_self_physics_speed.mp4](videos/01_self_physics_speed.mp4) | slow/medium/fastのSelf接触を同時比較 | 1280×720 / 4.0 s |
+| **2** | [02_other_observation_four_conditions.mp4](videos/02_other_observation_four_conditions.mp4) | 4つのSelf/Other条件をAの視点で比較 | 1280×720 / 4.0 s |
+| **3** | [03_self_other_mismatch_pairs.mp4](videos/03_self_other_mismatch_pairs.mp4) | 主要不一致2条件のSelf参照とOther actual | 1280×720 / 4.0 s |
+| **4** | [04_protection_decision_replay.mp4](videos/04_protection_decision_replay.mp4) | predicted Other H、閾値、Stage 8判断失敗 | 1280×720 / 4.0 s |
+
+全動画にはsimulation time、phase、身体条件、接触力、力積、ピークトルク、累積負荷、接触力履歴を同期表示した。動画3は同じevent seedに対するSelfとOtherの物理差を直接示す。動画4は高Otherでも `0.6850 < 0.7500` となり、`NO INTERVENTION` が選ばれた負の結果を保存している。使用エピソードとframe数は [`videos/manifest.json`](videos/manifest.json) に記録した。
+
 ---
 
 ## 18. 再現手順
@@ -653,6 +666,14 @@ $PY -m experiments.pain_self_other.report_figures
 
 スクリプトは10個のPNGが存在することを`assert`し、欠損時に非ゼロ終了する。
 
+### 18.6 シミュレーション動画を再生成
+
+```bash
+$PY -m experiments.pain_self_other.render_videos
+```
+
+動画生成は既存のOpenCV `mp4v` encoderを使用し、新しい依存を追加しない。各MP4を再度開いてframe数と先頭frameを検査し、不完全な動画では非ゼロ終了する。
+
 ---
 
 ## 19. 限界と主張可能範囲
@@ -689,4 +710,3 @@ $PY -m experiments.pain_self_other.report_figures
 **中心科学命題のうち、「Self-CFとOther actualを分ける」部分は連続軌道とharm readoutの双方で支持された。** Self投影よりOther専用予測が良く、body contextをshuffleすると悪化したため、Other身体情報が予測に寄与した。ただし、X-onlyのT/I振幅、較正量の単調効果、画像時刻への依存、固定閾値でのOther保護は支持されなかった。
 
 **最優先の次工程は、Stage 7のtest splitと閾値を固定したまま、training/validationだけで高力状態のT/I振幅calibrationを改善することである。** 具体的には、原DMBNに近い画像CNNへ置換し、validation上のpeak-force/impulse calibration lossを追加したうえで、既存のSelf低／Other高testを一度だけ再評価する。この手順なら、負の結果を消すpost-hoc閾値変更を避けながら、Stage 8失敗の直接原因を検証できる。
-

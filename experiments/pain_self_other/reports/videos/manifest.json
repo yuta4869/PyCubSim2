@@ -1,0 +1,67 @@
+{
+  "source_fps": 30,
+  "frame_repeat": 2,
+  "videos": [
+    {
+      "file": "01_self_physics_speed.mp4",
+      "frames": 120,
+      "fps": 30,
+      "duration_s": 4.0,
+      "size": [
+        1280,
+        720
+      ],
+      "sources": [
+        "data/raw/self_full/S2_slow_neutral_hand_r10",
+        "data/raw/self_full/S2_medium_neutral_hand_r10",
+        "data/raw/self_full/S2_fast_neutral_hand_r10"
+      ]
+    },
+    {
+      "file": "02_other_observation_four_conditions.mp4",
+      "frames": 120,
+      "fps": 30,
+      "duration_s": 4.0,
+      "size": [
+        1280,
+        720
+      ],
+      "sources": [
+        "data/raw/dissociation/S7_matched_high_r10_other_actual",
+        "data/raw/dissociation/S7_self_high_other_low_r10_other_actual",
+        "data/raw/dissociation/S7_self_low_other_high_r10_other_actual",
+        "data/raw/dissociation/S7_matched_low_r10_other_actual"
+      ]
+    },
+    {
+      "file": "03_self_other_mismatch_pairs.mp4",
+      "frames": 120,
+      "fps": 30,
+      "duration_s": 4.0,
+      "size": [
+        1280,
+        720
+      ],
+      "sources": [
+        "data/raw/dissociation/S7_self_high_other_low_r10_self_reference",
+        "data/raw/dissociation/S7_self_high_other_low_r10_other_actual",
+        "data/raw/dissociation/S7_self_low_other_high_r10_self_reference",
+        "data/raw/dissociation/S7_self_low_other_high_r10_other_actual"
+      ]
+    },
+    {
+      "file": "04_protection_decision_replay.mp4",
+      "frames": 120,
+      "fps": 30,
+      "duration_s": 4.0,
+      "size": [
+        1280,
+        720
+      ],
+      "sources": [
+        "data/raw/dissociation/S7_self_high_other_low_r10_other_actual",
+        "data/raw/dissociation/S7_self_low_other_high_r10_other_actual"
+      ]
+    }
+  ]
+}
