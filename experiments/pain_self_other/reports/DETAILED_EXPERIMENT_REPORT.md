@@ -61,7 +61,9 @@
 
 ![Self経験からOther状態推定までの研究設計](figures/01_study_design.png)
 
-**図1**は、Otherを観察した後もSelf-CFとOther予測を別の出力として保持する設計を示す。Other actualセンサは評価時の物理的正解であり、Self-CFの正解と置換しない。
+> **図1 — Self経験からOther状態推定までの研究設計** — **画像ファイル名:** [`01_study_design.png`](figures/01_study_design.png)
+
+図1は、Otherを観察した後もSelf-CFとOther予測を別の出力として保持する設計を示す。Other actualセンサは評価時の物理的正解であり、Self-CFの正解と置換しない。
 
 ---
 
@@ -214,12 +216,6 @@ Artificial Pain研究の実験的分離である「Vision/Touch学習 → Touch�
 - **Stage 5**: `X_other` をSelf body modelへ与えSelf-CFを生成
 - **Stage 6/7**: rigid/compliant別Other modelまたは較正データでOther actualを予測
 
-### 6.4 学習履歴
-
-![Stage 3Aから3Cの学習履歴](figures/03_training_history.png)
-
-**図2**の赤点がvalidation objectiveで選択したcheckpointである。X+TとX+T+P+Iではvalidation曲線が後半に悪化し、学習終了時ではなく最良checkpointを使う必要があった。これはtraining objective低下だけでは汎化を保証しないことを示す。
-
 ---
 
 ## 7. 物理妥当性の結果
@@ -228,7 +224,9 @@ Artificial Pain研究の実験的分離である「Vision/Touch学習 → Touch�
 
 ![速度・姿勢と物理帰結の分布](figures/02_physics_distributions.png)
 
-**図3**は各因子水準120試行の分布である。速度操作はピーク力よりも接触時間を含む力積に現れ、姿勢操作はピークトルクと累積負荷に現れた。
+> **図2 — 速度・姿勢と物理帰結の分布** — **画像ファイル名:** [`02_physics_distributions.png`](figures/02_physics_distributions.png)
+
+図2は各因子水準120試行の分布である。速度操作はピーク力よりも接触時間を含む力積に現れ、姿勢操作はピークトルクと累積負荷に現れた。
 
 ### 7.2 効果量と自動ゲート
 
@@ -275,7 +273,15 @@ Artificial Pain研究の実験的分離である「Vision/Touch学習 → Touch�
 
 ## 8. Self DMBNの結果
 
-### 8.1 軌道MAEとベースライン
+### 8.1 学習履歴
+
+![Stage 3Aから3Cの学習履歴](figures/03_training_history.png)
+
+> **図3 — Stage 3Aから3CのDMBN学習履歴** — **画像ファイル名:** [`03_training_history.png`](figures/03_training_history.png)
+
+図3の赤点がvalidation objectiveで選択したcheckpointである。X+TとX+T+P+Iではvalidation曲線が後半に悪化し、学習終了時ではなく最良checkpointを使う必要があった。これはtraining objective低下だけでは汎化を保証しないことを示す。
+
+### 8.2 軌道MAEとベースライン
 
 | Stage / Context | Target | DMBN MAE | Unconditional mean MAE | 相対結果 |
 |---|---|---:|---:|---:|
@@ -291,15 +297,17 @@ Artificial Pain研究の実験的分離である「Vision/Touch学習 → Touch�
 
 ![DMBNとunconditional mean軌道の相対誤差](figures/04_self_model_vs_baseline.png)
 
-**図4**では1.0未満がmean trajectoryより良い。Pは大幅に改善する一方、X-onlyのT/I振幅はmeanを下回らない。Xに早期P/Iを追加した場合だけTがmeanを **10.4%** 上回った。
+> **図4 — DMBNとunconditional mean軌道の相対MAE** — **画像ファイル名:** [`04_self_model_vs_baseline.png`](figures/04_self_model_vs_baseline.png)
 
-### 8.2 時間構造
+図4では1.0未満がmean trajectoryより良い。Pは大幅に改善する一方、X-onlyのT/I振幅はmeanを下回らない。Xに早期P/Iを追加した場合だけTがmeanを **10.4%** 上回った。
+
+### 8.3 時間構造
 
 - Stage 3B X→Tのcontact onset error: **−0.0194 s**
 - mean trajectoryのcontact onset error: **0.1384 s**
 - Stage 3B X→Tの平均peak force過小評価: **5.55 N**
 
-### 8.3 事実に基づく分析
+### 8.4 事実に基づく分析
 
 - **Q1の答え**: Self X/T/P/I学習は部分的に支持された。X/Pは強いが、T/Iの絶対振幅は不十分である。
 - **Q2の答え**: early XはPと接触時刻を予測できたが、将来T/I振幅の十分条件ではなかった。
@@ -343,7 +351,9 @@ H_action = 0.35 × peak_force / F95
 
 ![Other較正量とテストMAE](figures/05_other_calibration.png)
 
-**図5**が示すとおり、較正量と精度は単調関係ではない。RigidのTは7.14%較正が最小MAE、Pは21.43%、Iは7.14%であり、単純に100%へ増やせば全指標が改善するわけではなかった。
+> **図5 — Other較正量とテスト軌道MAE** — **画像ファイル名:** [`05_other_calibration.png`](figures/05_other_calibration.png)
+
+図5が示すとおり、較正量と精度は単調関係ではない。RigidのTは7.14%較正が最小MAE、Pは21.43%、Iは7.14%であり、単純に100%へ増やせば全指標が改善するわけではなかった。
 
 ### 10.2 事実に基づく分析
 
@@ -360,6 +370,8 @@ H_action = 0.35 × peak_force / F95
 
 ![4条件のSelf-CFとOther harm readout](figures/06_dissociation_harm.png)
 
+> **図6 — 4条件のSelf-CFとOther harm readout** — **画像ファイル名:** [`06_dissociation_harm.png`](figures/06_dissociation_harm.png)
+
 | Condition | Actual Self H | Predicted Self-CF H | Actual Other H | Predicted Other H | Predicted action |
 |---|---:|---:|---:|---:|---|
 | **Matched high** | 0.8682 | 0.7081 | 0.9950 | 0.6850 | 非介入 |
@@ -367,7 +379,7 @@ H_action = 0.35 × peak_force / F95
 | **Self low / Other high** | 0.3838 | 0.2963 | 0.9950 | 0.6850 | 非介入 |
 | **Matched low** | 0.3838 | 0.2963 | 0.3234 | 0.2961 | 非介入 |
 
-**図6**では、Self-CFはSelf身体条件に追従し、Other予測はOther身体条件に追従している。特に主要2条件で予測の大小関係が反転したため、連続表現上は単純Self投影から分離できている。ただし高状態を一貫して過小評価し、0.75の行動閾値を越えない。
+図6では、Self-CFはSelf身体条件に追従し、Other予測はOther身体条件に追従している。特に主要2条件で予測の大小関係が反転したため、連続表現上は単純Self投影から分離できている。ただし高状態を一貫して過小評価し、0.75の行動閾値を越えない。
 
 ### 11.2 Self投影に対する改善
 
@@ -381,6 +393,8 @@ H_action = 0.35 × peak_force / F95
 
 ![Self projection、Other専用、body shuffle、time shiftの比較](figures/07_dissociation_controls.png)
 
+> **図7 — Self projectionとshortcut controlの比較** — **画像ファイル名:** [`07_dissociation_controls.png`](figures/07_dissociation_controls.png)
+
 | Control | T / Self projection | P / Self projection | I / Self projection | 期待と結果 |
 |---|---:|---:|---:|---|
 | **Self projection** | 1.00× | 1.00× | 1.00× | 比較基準 |
@@ -388,19 +402,23 @@ H_action = 0.35 × peak_force / F95
 | **Shuffled body context** | 1.42× | 1.90× | 1.50× | 悪化、文脈利用を支持 |
 | **Time-shifted X** | 0.56× | 0.06× | 0.49× | ほぼ不変、時間利用を支持せず |
 
-**図7**は、身体文脈を誤対応させると全モダリティで悪化する一方、early Xの時刻を0.25ずらしても誤差が変わらないことを示す。したがって「body contextが必要」は支持されるが、「early Xの正しい観測時刻がこの結果を生んだ」は支持されない。
+図7は、身体文脈を誤対応させると全モダリティで悪化する一方、early Xの時刻を0.25ずらしても誤差が変わらないことを示す。したがって「body contextが必要」は支持されるが、「early Xの正しい観測時刻がこの結果を生んだ」は支持されない。
 
 ### 11.4 Self高 / Other低の代表軌道
 
 ![Self高Other低のT/P/I軌道](figures/08_self_high_other_low_trajectory.png)
 
-**図8**では、Actual Selfに大きい接触力があり、Actual Otherにはほぼ接触力がない。Predicted Self-CFは高い力を予測し、Predicted Otherは低く抑える。Pは初期値からの肘位置変化をmradで表示し、Iは肘トルクを物理単位で示す。
+> **図8 — Self高／Other低条件のT/P/I代表軌道** — **画像ファイル名:** [`08_self_high_other_low_trajectory.png`](figures/08_self_high_other_low_trajectory.png)
+
+図8では、Actual Selfに大きい接触力があり、Actual Otherにはほぼ接触力がない。Predicted Self-CFは高い力を予測し、Predicted Otherは低く抑える。Pは初期値からの肘位置変化をmradで表示し、Iは肘トルクを物理単位で示す。
 
 ### 11.5 Self低 / Other高の代表軌道
 
 ![Self低Other高のT/P/I軌道](figures/09_self_low_other_high_trajectory.png)
 
-**図9**ではActual Otherに約9 Nの接触力が生じる一方、Actual Selfは低い。Predicted Otherは方向を正しく高くするが、ピークを約3 Nに過小評価する。Self-CFはほぼゼロ接触を予測し、SelfとOtherの分離方向は正しい。
+> **図9 — Self低／Other高条件のT/P/I代表軌道** — **画像ファイル名:** [`09_self_low_other_high_trajectory.png`](figures/09_self_low_other_high_trajectory.png)
+
+図9ではActual Otherに約9 Nの接触力が生じる一方、Actual Selfは低い。Predicted Otherは方向を正しく高くするが、ピークを約3 Nに過小評価する。Self-CFはほぼゼロ接触を予測し、SelfとOtherの分離方向は正しい。
 
 ### 11.6 事実に基づく分析
 
@@ -418,12 +436,14 @@ H_action = 0.35 × peak_force / F95
 
 ![Other harm予測と実際の保護結果](figures/10_protection_result.png)
 
+> **図10 — Other harm予測と保護政策実行後の物理結果** — **画像ファイル名:** [`10_protection_result.png`](figures/10_protection_result.png)
+
 | 条件 | Actual Other H | Predicted Other H | Expected action | Executed action | 物理結果 |
 |---|---:|---:|---|---|---|
 | **Self high / Other low** | 0.3234 | 0.2961 | 非介入 | 非介入 | 正しい |
 | **Self low / Other high** | 0.9950 | 0.6850 | 介入 | 非介入 | 誤り、force低減なし |
 
-**図10**の左はdecision input、右は政策実行後のpeak forceである。高リスクOther予測が閾値未満だったためstop-probeが発火せず、保護前後のピーク力は変化しなかった。
+図10の左はdecision input、右は政策実行後のpeak forceである。高リスクOther予測が閾値未満だったためstop-probeが発火せず、保護前後のピーク力は変化しなかった。
 
 ### 12.2 事実に基づく分析
 
@@ -546,16 +566,16 @@ GUI testの`NSInternalInconsistencyException`はpassとして数えていない�
 
 | No. | File | 内容 | 元データ |
 |---:|---|---|---|
-| **1** | `figures/01_study_design.png` | 研究設計 | 実装仕様 |
-| **2** | `figures/02_physics_distributions.png` | 物理分布 | raw Self metadata |
-| **3** | `figures/03_training_history.png` | 学習履歴 | checkpoint history JSON |
-| **4** | `figures/04_self_model_vs_baseline.png` | Self model相対MAE | Stage 3 metrics JSON |
-| **5** | `figures/05_other_calibration.png` | 較正率とMAE | Stage 6 metrics JSON |
-| **6** | `figures/06_dissociation_harm.png` | 4条件H | Stage 7 metrics JSON |
-| **7** | `figures/07_dissociation_controls.png` | shortcut control | Stage 7 metrics JSON |
-| **8** | `figures/08_self_high_other_low_trajectory.png` | 不一致条件2の軌道 | Stage 7 prediction NPZ |
-| **9** | `figures/09_self_low_other_high_trajectory.png` | 不一致条件3の軌道 | Stage 7 prediction NPZ |
-| **10** | `figures/10_protection_result.png` | 保護判定と物理結果 | Stage 7/8 metrics JSON |
+| **1** | [`01_study_design.png`](figures/01_study_design.png) | 研究設計 | 実装仕様 |
+| **2** | [`02_physics_distributions.png`](figures/02_physics_distributions.png) | 物理分布 | raw Self metadata |
+| **3** | [`03_training_history.png`](figures/03_training_history.png) | 学習履歴 | checkpoint history JSON |
+| **4** | [`04_self_model_vs_baseline.png`](figures/04_self_model_vs_baseline.png) | Self model相対MAE | Stage 3 metrics JSON |
+| **5** | [`05_other_calibration.png`](figures/05_other_calibration.png) | 較正率とMAE | Stage 6 metrics JSON |
+| **6** | [`06_dissociation_harm.png`](figures/06_dissociation_harm.png) | 4条件H | Stage 7 metrics JSON |
+| **7** | [`07_dissociation_controls.png`](figures/07_dissociation_controls.png) | shortcut control | Stage 7 metrics JSON |
+| **8** | [`08_self_high_other_low_trajectory.png`](figures/08_self_high_other_low_trajectory.png) | 不一致条件2の軌道 | Stage 7 prediction NPZ |
+| **9** | [`09_self_low_other_high_trajectory.png`](figures/09_self_low_other_high_trajectory.png) | 不一致条件3の軌道 | Stage 7 prediction NPZ |
+| **10** | [`10_protection_result.png`](figures/10_protection_result.png) | 保護判定と物理結果 | Stage 7/8 metrics JSON |
 
 図は [`report_figures.py`](../report_figures.py) で保存済みmetrics/raw metadata/prediction arraysから再生成できる。
 
