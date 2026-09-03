@@ -1,0 +1,16 @@
+{
+  "episodes": 54,
+  "controls": 3,
+  "effects": {
+    "speed_peak_force_eta_squared": 0.008707924969337373,
+    "speed_impulse_eta_squared": 0.1744137581883863,
+    "posture_peak_torque_eta_squared": 0.547728502156654,
+    "posture_load_eta_squared": 0.1946358624705946
+  },
+  "gate": {
+    "contact_nonzero": true,
+    "no_contact_near_zero": true,
+    "speed_effect": true,
+    "posture_effect": true
+  }
+}

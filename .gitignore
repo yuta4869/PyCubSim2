@@ -8,3 +8,6 @@ artifacts/*
 !artifacts/.gitkeep
 layouts/*.json
 !layouts/default_scene.json
+experiments/pain_self_other/data/
+experiments/pain_self_other/checkpoints/
+experiments/pain_self_other/outputs/
