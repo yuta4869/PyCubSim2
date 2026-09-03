@@ -100,18 +100,7 @@ def study_design_ja() -> None:
     axis.set_ylim(0, 9)
     axis.axis("off")
 
-    def box(
-        x: float,
-        y: float,
-        width: float,
-        height: float,
-        title: str,
-        body: str,
-        color: str,
-        dashed: bool = False,
-        body_fraction: float = 0.43,
-        body_size: float = 11.5,
-    ) -> None:
+    def box(x: float, y: float, width: float, height: float, title: str, body: str, color: str) -> None:
         axis.add_patch(
             FancyBboxPatch(
                 (x, y),
@@ -119,45 +108,65 @@ def study_design_ja() -> None:
                 height,
                 boxstyle="round,pad=0.08,rounding_size=0.10",
                 linewidth=2.2,
-                linestyle="--" if dashed else "-",
                 edgecolor=color,
                 facecolor="white",
             )
         )
         axis.text(x + 0.18, y + height - 0.28, title, ha="left", va="top", fontsize=14, color=color, fontproperties=JP_BOLD)
-        axis.text(x + width / 2, y + height * body_fraction, body, ha="center", va="center", fontsize=body_size, color="#25323b", fontproperties=JP_FONT, linespacing=1.45)
+        axis.text(x + width / 2, y + height * 0.40, body, ha="center", va="center", fontsize=11.5, color="#25323b", fontproperties=JP_FONT, linespacing=1.45)
+
+    def prediction_card(
+        x: float,
+        title: str,
+        question: str,
+        output: str,
+        reference: str,
+        color: str,
+    ) -> None:
+        y, width, height = 3.15, 7.0, 2.05
+        axis.add_patch(
+            FancyBboxPatch(
+                (x, y),
+                width,
+                height,
+                boxstyle="round,pad=0.08,rounding_size=0.10",
+                linewidth=2.6,
+                edgecolor=color,
+                facecolor="white",
+            )
+        )
+        axis.add_patch(plt.Rectangle((x, y + height - 0.52), width, 0.52, color=color, alpha=0.12, linewidth=0))
+        axis.text(x + 0.2, y + height - 0.26, title, ha="left", va="center", fontsize=15, color=color, fontproperties=JP_BOLD)
+        axis.text(x + width / 2, y + 1.13, question, ha="center", va="center", fontsize=16, color="#17212b", fontproperties=JP_BOLD)
+        axis.text(x + width / 2, y + 0.72, output, ha="center", va="center", fontsize=12, color="#34434d", fontproperties=JP_FONT)
+        axis.add_patch(plt.Rectangle((x + 0.10, y + 0.08), width - 0.20, 0.36, color="#edf1f2", linewidth=0))
+        axis.text(x + width / 2, y + 0.26, reference, ha="center", va="center", fontsize=9.5, color="#59666f", fontproperties=JP_FONT)
 
     def arrow(start: tuple[float, float], end: tuple[float, float], color: str = "#52616b") -> None:
         axis.add_patch(FancyArrowPatch(start, end, arrowstyle="-|>", mutation_scale=16, color=color, linewidth=2.0, connectionstyle="arc3,rad=0"))
 
-    axis.text(8, 8.55, "Self経験からOther状態推定・保護まで", ha="center", va="center", fontsize=23, color="#123047", fontproperties=JP_BOLD)
-    axis.text(8, 8.14, "Self反実仮想とOther実状態予測を混ぜず、それぞれ対応する実測値で評価する", ha="center", va="center", fontsize=12.5, color="#52616b", fontproperties=JP_FONT)
+    axis.text(8, 8.56, "観察したOtherを、Selfと区別して理解できるか", ha="center", va="center", fontsize=23, color="#123047", fontproperties=JP_BOLD)
+    axis.text(8, 8.13, "一つの観察から「Aならどうなる」と「Bに何が起きる」を別々に予測する", ha="center", va="center", fontsize=12.5, color="#52616b", fontproperties=JP_FONT)
 
-    box(0.35, 6.15, 3.45, 1.55, "① Self実経験", "ロボットAが接触を受ける\nX：視覚　T：触覚\nP：固有受容　I：内部機械状態", COLORS["blue"])
-    box(4.25, 6.15, 3.45, 1.55, "② Self身体モデル", "DMBNで時間関係を学習\n観測集合 ＋ 独立した時刻query\n予測を次時刻へ再入力しない", COLORS["blue"])
-    box(8.15, 6.15, 3.8, 1.55, "③ Otherを観察", "Aの左眼でBへの接触を見る\nモデルへの主要入力：X_other\n同じ外的イベントを観測", COLORS["orange"])
-    arrow((3.8, 6.93), (4.25, 6.93), COLORS["blue"])
-    arrow((7.7, 6.93), (8.15, 6.93), COLORS["blue"])
+    box(0.45, 6.10, 4.15, 1.55, "① AがSelf経験を集める", "A自身がprobe接触を受ける\n視覚 X・触覚 T・関節状態 P\n内部機械状態 I を同時記録", COLORS["blue"])
+    box(5.00, 6.10, 4.10, 1.55, "② DMBNが身体関係を学ぶ", "時間付きの観測をまとめ\n任意時刻の X / T / P / I を予測\n※ 自己回帰ではない", COLORS["blue"])
+    box(9.50, 6.10, 6.05, 1.55, "③ AがOtherへの接触を見る", "Bが同種のprobe接触を受ける\nAの左眼画像 X_other を入力\nここから二つの問いへ分岐", COLORS["orange"])
+    arrow((4.60, 6.88), (5.00, 6.88), COLORS["blue"])
+    arrow((9.10, 6.88), (9.50, 6.88), COLORS["blue"])
 
-    box(2.0, 3.55, 5.35, 1.75, "④-A Self反実仮想", "「同じ出来事がAに起きたら？」\n予測：T/P/I_self_cf\nA自身の身体モデルで内部シミュレーション", COLORS["orange"])
-    box(8.65, 3.55, 5.35, 1.75, "④-B Other実状態予測", "「Bには実際に何が起きる？」\nX_other ＋ Bの身体情報／較正\n予測：T/P/I_other_hat", COLORS["green"])
-    arrow((9.65, 6.15), (5.8, 5.3), COLORS["orange"])
-    arrow((10.3, 6.15), (11.25, 5.3), COLORS["green"])
+    axis.text(8, 5.65, "同じ X_other から、二つの答えを混ぜずに出す", ha="center", va="center", fontsize=13, color="#52616b", fontproperties=JP_BOLD)
+    prediction_card(0.45, "④-A　SELFについて答える", "もし同じ出来事がAに起きたら？", "予測：T/P/I_self_cf", "照合する正解：同じprobe軌道で刺激したAの実測 T/P/I", COLORS["orange"])
+    prediction_card(8.55, "④-B　OTHERについて答える", "Bには実際に何が起きた？", "X_other ＋ Bの身体情報／較正 → 予測 T/P/I_other", "照合する正解：B自身の実センサ T/P/I", COLORS["green"])
+    arrow((12.50, 6.10), (4.50, 5.20), COLORS["orange"])
+    arrow((12.70, 6.10), (12.05, 5.20), COLORS["green"])
 
-    box(2.0, 2.35, 5.35, 0.80, "評価用Self actual", "同一probe軌道でAを刺激した実測 T/P/I", "#66717a", dashed=True, body_fraction=0.18, body_size=10.5)
-    box(8.65, 2.35, 5.35, 0.80, "評価用Other actual", "Bの実センサで測定した T/P/I", "#66717a", dashed=True, body_fraction=0.18, body_size=10.5)
-    arrow((4.68, 3.55), (4.68, 3.15), "#66717a")
-    arrow((11.32, 3.55), (11.32, 3.15), "#66717a")
+    box(0.45, 0.65, 10.10, 1.55, "⑤ 中心実験：二つの答えの違いを検出する", "Aなら高い／Bは低い　　対比　　Aなら低い／Bは高い\nH_self_cf・H_other・Δforce・Δload・軌道差を比較", COLORS["purple"])
+    box(11.15, 0.65, 4.40, 1.55, "⑥ Otherを保護する", "判断には予測 H_other だけを使う\n高い → probe停止\n低い → 介入しない", COLORS["red"])
+    arrow((4.00, 3.15), (4.00, 2.20), COLORS["purple"])
+    arrow((12.05, 3.15), (9.20, 2.20), COLORS["purple"])
+    arrow((10.55, 1.43), (11.15, 1.43), COLORS["red"])
 
-    box(0.35, 0.55, 3.55, 1.25, "中心的な反証条件", "Self高／Other低\nSelf低／Other高", COLORS["red"])
-    box(4.65, 0.55, 6.05, 1.25, "⑤ Self/Other解離を評価", "H_self_cf と H_other を別々に算出\nΔforce・Δload・軌道差を比較", COLORS["purple"])
-    box(11.45, 0.55, 4.2, 1.25, "⑥ Other保護", "予測H_other ≥ 閾値 → probe停止\n低ければ介入しない", COLORS["red"])
-    arrow((3.9, 1.18), (4.65, 1.18), COLORS["red"])
-    arrow((7.35, 2.35), (7.35, 1.8), COLORS["purple"])
-    arrow((8.65, 2.35), (8.15, 1.8), COLORS["purple"])
-    arrow((10.7, 1.18), (11.45, 1.18), COLORS["red"])
-
-    axis.text(15.65, 8.15, "実線：予測経路\n破線枠：評価用の実測値", ha="right", va="top", fontsize=9.5, color="#66717a", fontproperties=JP_FONT, linespacing=1.45)
+    axis.text(8, 0.24, "重要：Self反実仮想 ≠ Other実状態。保護判断をSelf投影だけで代用しない。", ha="center", va="center", fontsize=11.5, color=COLORS["red"], fontproperties=JP_BOLD)
     save(figure, "01_study_design_ja.png")
 
 
