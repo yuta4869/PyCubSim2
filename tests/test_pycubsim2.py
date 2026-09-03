@@ -254,6 +254,17 @@ class SimulationTests(unittest.TestCase):
         simulation.remove_entity(ball)
         self.assertFalse(simulation.requires_physics_step())
 
+        cylinder = simulation.add_primitive(
+            name="Cylinder",
+            shape="cylinder",
+            size=(0.04, 0.04, 0.16),
+            mass=0.1,
+            color=(0.8, 0.2, 0.1, 1.0),
+            fixed_base=False,
+        )
+        self.assertEqual(simulation.runtime(cylinder).spec.primitive_shape, "cylinder")
+        simulation.remove_entity(cylinder)
+
     def test_external_model_agent_controller_and_camera(self) -> None:
         simulation = self.simulation
         agent_path = (

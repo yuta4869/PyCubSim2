@@ -373,27 +373,31 @@ class PyCubSim2Simulation:
     def _load_primitive(self, spec: EntitySpec) -> EntityRuntime:
         size_x, size_y, size_z = spec.size
         shape = spec.primitive_shape
-        kwargs: dict[str, Any]
+        collision_kwargs: dict[str, Any]
+        visual_kwargs: dict[str, Any]
         geometry: int
         if shape == "box":
             geometry = p.GEOM_BOX
-            kwargs = {"halfExtents": (size_x / 2.0, size_y / 2.0, size_z / 2.0)}
+            collision_kwargs = visual_kwargs = {
+                "halfExtents": (size_x / 2.0, size_y / 2.0, size_z / 2.0)
+            }
         elif shape == "sphere":
             geometry = p.GEOM_SPHERE
-            kwargs = {"radius": size_x / 2.0}
+            collision_kwargs = visual_kwargs = {"radius": size_x / 2.0}
         elif shape == "cylinder":
             geometry = p.GEOM_CYLINDER
-            kwargs = {"radius": size_x / 2.0, "height": size_z}
+            collision_kwargs = {"radius": size_x / 2.0, "height": size_z}
+            visual_kwargs = {"radius": size_x / 2.0, "length": size_z}
         else:
             raise ValueError(f"Unsupported primitive: {shape}")
         collision = p.createCollisionShape(
-            geometry, physicsClientId=self.client_id, **kwargs
+            geometry, physicsClientId=self.client_id, **collision_kwargs
         )
         visual = p.createVisualShape(
             geometry,
             rgbaColor=spec.color,
             physicsClientId=self.client_id,
-            **kwargs,
+            **visual_kwargs,
         )
         body_id = p.createMultiBody(
             baseMass=0.0 if spec.fixed_base else max(0.001, spec.mass),
@@ -641,23 +645,6 @@ class PyCubSim2Simulation:
             )
             for joint_id in joint_ids
         ]
-        if not self._has_dynamic_entities():
-            for joint_id, position in zip(joint_ids, positions):
-                previous = runtime.applied_positions.get(joint_id)
-                if previous is not None and abs(previous - position) < 1e-7:
-                    continue
-                p.resetJointState(
-                    runtime.primary_body,
-                    joint_id,
-                    position,
-                    targetVelocity=0.0,
-                    physicsClientId=self.client_id,
-                )
-                runtime.applied_positions[joint_id] = position
-            runtime.motor_settle_steps = 0
-            self._collision_dirty = True
-            return
-        runtime.applied_positions.clear()
         if len(runtime.motor_forces) != len(joint_ids):
             names_by_id = {
                 joint_id: name for name, joint_id in runtime.joints.items()
@@ -685,6 +672,23 @@ class PyCubSim2Simulation:
                 else:
                     runtime.motor_forces.append(42.0)
                     runtime.motor_position_gains.append(0.16)
+        if not self._has_dynamic_entities():
+            for joint_id, position in zip(joint_ids, positions):
+                previous = runtime.applied_positions.get(joint_id)
+                if previous is not None and abs(previous - position) < 1e-7:
+                    continue
+                p.resetJointState(
+                    runtime.primary_body,
+                    joint_id,
+                    position,
+                    targetVelocity=0.0,
+                    physicsClientId=self.client_id,
+                )
+                runtime.applied_positions[joint_id] = position
+            runtime.motor_settle_steps = 0
+            self._collision_dirty = True
+            return
+        runtime.applied_positions.clear()
         gain_scale = max(0.35, min(2.0, runtime.behavior_speed))
         p.setJointMotorControlArray(
             runtime.primary_body,
@@ -1119,6 +1123,31 @@ class PyCubSim2Simulation:
     ) -> None:
         runtime = self.runtime(entity_id)
         self._store_joint_targets(runtime, targets_rad)
+        self._apply_motor_targets(runtime)
+
+    def scale_joint_motor_profile(
+        self,
+        entity_id: str,
+        *,
+        force_scale: float = 1.0,
+        position_gain_scale: float = 1.0,
+        joint_names: list[str] | tuple[str, ...] | None = None,
+    ) -> None:
+        """Scale the active position controller for selected movable joints."""
+        if not math.isfinite(force_scale) or force_scale < 0.0:
+            raise ValueError("force_scale must be a finite non-negative number.")
+        if not math.isfinite(position_gain_scale) or position_gain_scale < 0.0:
+            raise ValueError(
+                "position_gain_scale must be a finite non-negative number."
+            )
+        runtime = self.runtime(entity_id)
+        self._apply_motor_targets(runtime)
+        selected = set(joint_names or runtime.joints)
+        names_by_id = {joint_id: name for name, joint_id in runtime.joints.items()}
+        for index, joint_id in enumerate(runtime.movable_joint_ids):
+            if names_by_id.get(joint_id) in selected:
+                runtime.motor_forces[index] *= force_scale
+                runtime.motor_position_gains[index] *= position_gain_scale
         self._apply_motor_targets(runtime)
 
     @staticmethod
@@ -1590,29 +1619,116 @@ class PyCubSim2Simulation:
                 "angular_velocity": tuple(float(value) for value in angular),
             }
         if options.contact:
-            if self._collision_dirty:
-                p.performCollisionDetection(physicsClientId=self.client_id)
-                self._collision_dirty = False
-            contacts = p.getContactPoints(
-                bodyA=runtime.primary_body,
-                physicsClientId=self.client_id,
-            )
+            contacts = self.contact_points(entity_id)
             snapshot["contact"] = {
                 "count": len(contacts),
                 "max_force": max(
-                    (float(contact[9]) for contact in contacts), default=0.0
+                    (contact["normal_force"] for contact in contacts), default=0.0
                 ),
                 "body_ids": sorted(
                     {
-                        int(contact[2])
+                        contact["body_id_b"]
                         for contact in contacts
-                        if int(contact[2]) >= 0
+                        if contact["body_id_b"] >= 0
                     }
                 ),
+                "points": contacts,
             }
         if options.lidar:
             snapshot["lidar_m"] = self.read_lidar(entity_id)
         return snapshot
+
+    def contact_points(
+        self, entity_id: str, other_entity_id: str | None = None
+    ) -> list[dict[str, Any]]:
+        """Return all current contact points for an entity with link detail."""
+        runtime = self.runtime(entity_id)
+        other_bodies = (
+            set(self.runtime(other_entity_id).body_ids)
+            if other_entity_id is not None
+            else None
+        )
+        if self._collision_dirty:
+            p.performCollisionDetection(physicsClientId=self.client_id)
+            self._collision_dirty = False
+        body_to_runtime = {
+            body_id: candidate
+            for candidate in self.entities.values()
+            for body_id in candidate.body_ids
+        }
+        names_a = {link_id: name for name, link_id in runtime.links.items()}
+        points: list[dict[str, Any]] = []
+        for body_id_a in runtime.body_ids:
+            for contact in p.getContactPoints(
+                bodyA=body_id_a, physicsClientId=self.client_id
+            ):
+                body_id_b = int(contact[2])
+                if other_bodies is not None and body_id_b not in other_bodies:
+                    continue
+                link_id_a, link_id_b = int(contact[3]), int(contact[4])
+                other = body_to_runtime.get(body_id_b)
+                names_b = (
+                    {link_id: name for name, link_id in other.links.items()}
+                    if other is not None
+                    else {}
+                )
+                position_a = tuple(float(value) for value in contact[5])
+                position_b = tuple(float(value) for value in contact[6])
+                normal = tuple(float(value) for value in contact[7])
+                velocity_a = self._point_velocity(body_id_a, link_id_a, position_a)
+                velocity_b = self._point_velocity(body_id_b, link_id_b, position_b)
+                points.append(
+                    {
+                        "body_id_a": body_id_a,
+                        "body_id_b": body_id_b,
+                        "entity_id_b": other.spec.entity_id if other else None,
+                        "link_id_a": link_id_a,
+                        "link_id_b": link_id_b,
+                        "link_name_a": names_a.get(link_id_a, "base"),
+                        "link_name_b": names_b.get(link_id_b, "base"),
+                        "position_on_a": position_a,
+                        "position_on_b": position_b,
+                        "normal_on_b": normal,
+                        "distance": float(contact[8]),
+                        "normal_force": float(contact[9]),
+                        "lateral_force_1": float(contact[10]),
+                        "lateral_direction_1": tuple(
+                            float(value) for value in contact[11]
+                        ),
+                        "lateral_force_2": float(contact[12]),
+                        "lateral_direction_2": tuple(
+                            float(value) for value in contact[13]
+                        ),
+                        "relative_normal_velocity": float(
+                            np.dot(velocity_a - velocity_b, normal)
+                        ),
+                    }
+                )
+        return points
+
+    def _point_velocity(
+        self,
+        body_id: int,
+        link_id: int,
+        world_position: tuple[float, float, float],
+    ) -> np.ndarray:
+        if link_id >= 0:
+            state = p.getLinkState(
+                body_id,
+                link_id,
+                computeLinkVelocity=1,
+                physicsClientId=self.client_id,
+            )
+            center, linear, angular = state[4], state[6], state[7]
+        else:
+            center, _ = p.getBasePositionAndOrientation(
+                body_id, physicsClientId=self.client_id
+            )
+            linear, angular = p.getBaseVelocity(
+                body_id, physicsClientId=self.client_id
+            )
+        offset = np.asarray(world_position) - np.asarray(center)
+        return np.asarray(linear) + np.cross(np.asarray(angular), offset)
 
     def read_lidar(
         self,
