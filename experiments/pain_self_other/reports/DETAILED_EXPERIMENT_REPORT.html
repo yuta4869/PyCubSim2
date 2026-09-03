@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="PyCubSim2とDMBNによるSelf/Other身体状態予測実験の詳細結果">
+<title>PyCubSim2 × DMBN — Self/Other実験詳細報告</title>
+<style>
+:root { color-scheme: light; --ink:#17212b; --muted:#5d6a75; --paper:#fff; --wash:#f3f6f7; --navy:#123047; --teal:#007f78; --orange:#d67818; --red:#b83b3b; --line:#d8e0e3; --shadow:0 12px 38px rgba(18,48,71,.09); }
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { margin:0; color:var(--ink); background:var(--wash); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP",sans-serif; line-height:1.76; }
+a { color:#0069a6; text-underline-offset:3px; }
+.hero { background:linear-gradient(125deg,#102b3f 0%,#17455b 56%,#08756f 100%); color:#fff; padding:64px max(24px,calc((100vw - 1320px)/2)); }
+.hero .eyebrow { margin:0 0 10px; color:#8ee4d6; font-size:.82rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase; }
+.hero h1 { max-width:1000px; margin:0; font-size:clamp(2rem,4vw,4rem); line-height:1.08; letter-spacing:-.035em; }
+.hero .lead { max-width:940px; margin:22px 0 0; color:#dcecf0; font-size:1.08rem; }
+.metrics { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; max-width:1100px; margin-top:30px; }
+.metric { padding:16px 18px; border:1px solid rgba(255,255,255,.18); background:rgba(255,255,255,.08); }
+.metric strong { display:block; color:#fff; font-size:1.55rem; line-height:1.2; }.metric span { color:#cbe0e5; font-size:.83rem; }
+.layout { display:grid; grid-template-columns:280px minmax(0,1040px); gap:44px; max-width:1400px; margin:0 auto; padding:40px 24px 90px; align-items:start; }
+.toc { position:sticky; top:20px; max-height:calc(100vh - 40px); overflow:auto; padding:20px 16px; background:var(--paper); border:1px solid var(--line); box-shadow:var(--shadow); }
+.toc strong { display:block; margin:0 8px 12px; color:var(--navy); }.toc a { display:block; padding:6px 8px; color:#43515c; text-decoration:none; border-left:2px solid transparent; font-size:.86rem; line-height:1.35; }.toc a:hover { color:var(--teal); border-left-color:var(--teal); background:#f2f8f8; }.toc .toc-level-3 { padding-left:20px; color:#6a767e; font-size:.78rem; }
+main { min-width:0; padding:24px clamp(20px,4vw,58px) 60px; background:var(--paper); border:1px solid var(--line); box-shadow:var(--shadow); }
+main > h1 { margin:0; color:var(--navy); font-size:2.25rem; line-height:1.15; } main > h1 + h2 { margin-top:12px; border:0; padding-top:0; font-size:1.35rem; color:var(--teal); }
+h2 { scroll-margin-top:22px; margin:56px 0 18px; padding-top:28px; border-top:1px solid var(--line); color:var(--navy); font-size:1.7rem; line-height:1.25; }
+h3 { scroll-margin-top:22px; margin:34px 0 12px; color:#16566a; font-size:1.22rem; }
+p { margin:0 0 18px; } strong { color:#102f46; } hr { margin:50px 0; border:0; border-top:1px solid var(--line); }
+code { padding:.1em .34em; background:#eef2f4; border-radius:3px; font:85% ui-monospace,SFMono-Regular,Menlo,monospace; } pre { overflow:auto; margin:22px 0; padding:20px; color:#e9f3f4; background:#102a3d; border-left:4px solid var(--teal); line-height:1.55; } pre code { padding:0; color:inherit; background:transparent; }
+.report-list,ol { margin:10px 0 22px; padding-left:1.45rem; }.report-list li,ol li { margin:5px 0; }.report-list .depth-1 { margin-left:1.4rem; list-style-type:circle; }
+blockquote { margin:18px 0; padding:12px 16px; color:#31515e; background:#eef7f6; border-left:4px solid var(--teal); }
+.table-wrap { overflow-x:auto; margin:18px 0 30px; border:1px solid var(--line); }
+table { width:100%; border-collapse:collapse; font-size:.88rem; line-height:1.45; } th { position:sticky; top:0; padding:11px 12px; color:#fff; background:var(--navy); text-align:left; white-space:nowrap; } td { padding:10px 12px; border-top:1px solid var(--line); vertical-align:top; } tbody tr:nth-child(even) { background:#f7f9fa; } tbody tr:hover { background:#eef7f6; }
+figure { scroll-margin-top:24px; margin:30px 0 38px; border:1px solid var(--line); background:#fbfcfc; box-shadow:0 6px 22px rgba(18,48,71,.06); } figure a { display:block; } figure img { display:block; width:100%; height:auto; } figcaption { padding:14px 18px; color:#3d4c56; border-top:1px solid var(--line); font-size:.9rem; } figcaption code { word-break:break-all; }
+.video-section { margin-top:60px; padding-top:30px; border-top:2px solid var(--navy); }.video-grid { display:grid; grid-template-columns:1fr 1fr; gap:22px; }.video-card { overflow:hidden; border:1px solid var(--line); background:#f9fbfb; }.video-heading { display:flex; justify-content:space-between; gap:14px; padding:15px 16px 12px; }.video-heading h3 { margin:0 0 2px; }.video-heading p { margin:0; color:var(--muted); font-size:.84rem; }.video-heading span { flex:none; color:var(--muted); font-size:.76rem; }.video-card video { display:block; width:100%; aspect-ratio:16/9; background:#0c1820; }.file-ref { margin:0; padding:10px 14px 13px; color:var(--muted); font-size:.8rem; }.file-ref span { white-space:nowrap; }
+.footer { max-width:1400px; margin:0 auto; padding:0 24px 44px; color:var(--muted); font-size:.84rem; }.top-link { display:inline-block; margin-top:18px; }
+@media (max-width:980px) { .metrics { grid-template-columns:1fr 1fr; }.layout { display:block; }.toc { position:relative; top:0; max-height:none; margin-bottom:24px; columns:2; }.toc strong { column-span:all; }.video-grid { grid-template-columns:1fr; } }
+@media (max-width:620px) { .hero { padding-top:42px; padding-bottom:42px; }.metrics { grid-template-columns:1fr; }.layout { padding:18px 10px 54px; }.toc { columns:1; }.toc .toc-level-3 { display:none; } main { padding:22px 15px 44px; }.video-heading { display:block; }.video-heading span { display:block; margin-top:6px; } table { font-size:.8rem; } }
+@media print { body { background:#fff; }.hero { color:#000; background:#fff; padding:20px 0; }.hero .lead,.hero .eyebrow,.metric span { color:#333; }.metric { border:1px solid #bbb; }.metric strong { color:#000; }.layout { display:block; max-width:none; padding:0; }.toc,.video-section { display:none; } main { border:0; box-shadow:none; padding:0; } a { color:inherit; text-decoration:none; } figure,table,pre { break-inside:avoid; } }
+</style>
+</head>
+<body id="top">
+<header class="hero">
+  <p class="eyebrow">Executed research report · 2026-09-03</p>
+  <h1>Self経験からOther実状態予測・解離・保護へ</h1>
+  <p class="lead">PyCubSim2で実行したX/T/P/I物理実験、DMBN学習、Self反実仮想、Other較正、中心的な不一致条件、保護判断の成功と負の結果を、図・表・動画・再現手順とともに統合した報告書。</p>
+  <div class="metrics" aria-label="主要結果">
+    <div class="metric"><strong>523</strong><span>主要物理エピソード</span></div>
+    <div class="metric"><strong>44.5 / 94.5 / 50.9%</strong><span>T / P / IのSelf投影比改善</span></div>
+    <div class="metric"><strong>10図 + 4動画</strong><span>結果の視覚資料</span></div>
+    <div class="metric"><strong>Stage 8: PARTIAL</strong><span>0.6850 &lt; 閾値0.7500</span></div>
+  </div>
+</header>
+<div class="layout">
+  <nav class="toc" aria-label="報告書目次"><strong>目次</strong><a class="toc-level-2" href="#section-02">Self経験からSelf反実仮想・Other実状態予測・Self/Other分離・Other保護へ</a>
+<a class="toc-level-2" href="#section-03">1. 要旨</a>
+<a class="toc-level-3" href="#section-04">1.1 既知の客観的事実</a>
+<a class="toc-level-3" href="#section-05">1.2 事実に基づく分析</a>
+<a class="toc-level-2" href="#section-06">2. 研究目的と仮説</a>
+<a class="toc-level-3" href="#section-07">2.1 研究質問</a>
+<a class="toc-level-3" href="#section-08">2.2 反証可能な仮説</a>
+<a class="toc-level-3" href="#section-09">2.3 研究全体の流れ</a>
+<a class="toc-level-2" href="#section-10">3. 先行研究との関係</a>
+<a class="toc-level-3" href="#section-11">3.1 既知の客観的事実</a>
+<a class="toc-level-3" href="#section-12">3.2 事実に基づく分析</a>
+<a class="toc-level-2" href="#section-13">4. 実験装置と物理プロトコル</a>
+<a class="toc-level-3" href="#section-14">4.1 シミュレーション環境</a>
+<a class="toc-level-3" href="#section-15">4.2 モダリティ</a>
+<a class="toc-level-3" href="#section-16">4.3 Self factorial実験</a>
+<a class="toc-level-3" href="#section-17">4.4 Self/Other不一致実験</a>
+<a class="toc-level-2" href="#section-18">5. データ構造・分割・正規化</a>
+<a class="toc-level-3" href="#section-19">5.1 Rawエピソード</a>
+<a class="toc-level-3" href="#section-20">5.2 分割</a>
+<a class="toc-level-3" href="#section-21">5.3 正規化</a>
+<a class="toc-level-2" href="#section-22">6. DMBN実装</a>
+<a class="toc-level-3" href="#section-23">6.1 保存したアルゴリズム不変条件</a>
+<a class="toc-level-3" href="#section-24">6.2 現代化した実装</a>
+<a class="toc-level-3" href="#section-25">6.3 学習時の観測条件</a>
+<a class="toc-level-2" href="#section-26">7. 物理妥当性の結果</a>
+<a class="toc-level-3" href="#section-27">7.1 分布</a>
+<a class="toc-level-3" href="#section-28">7.2 効果量と自動ゲート</a>
+<a class="toc-level-3" href="#section-29">7.3 全18条件の物理平均</a>
+<a class="toc-level-3" href="#section-30">7.4 事実に基づく分析</a>
+<a class="toc-level-2" href="#section-31">8. Self DMBNの結果</a>
+<a class="toc-level-3" href="#section-32">8.1 学習履歴</a>
+<a class="toc-level-3" href="#section-33">8.2 軌道MAEとベースライン</a>
+<a class="toc-level-3" href="#section-34">8.3 時間構造</a>
+<a class="toc-level-3" href="#section-35">8.4 事実に基づく分析</a>
+<a class="toc-level-2" href="#section-36">9. Harm readoutとSelf保護</a>
+<a class="toc-level-3" href="#section-37">9.1 透明な下流readout</a>
+<a class="toc-level-2" href="#section-38">10. Other予測と較正</a>
+<a class="toc-level-3" href="#section-39">10.1 較正量ごとの結果</a>
+<a class="toc-level-3" href="#section-40">10.2 事実に基づく分析</a>
+<a class="toc-level-2" href="#section-41">11. 中心実験: Self/Other解離</a>
+<a class="toc-level-3" href="#section-42">11.1 Harm readoutの4条件</a>
+<a class="toc-level-3" href="#section-43">11.2 Self投影に対する改善</a>
+<a class="toc-level-3" href="#section-44">11.3 Shortcut control</a>
+<a class="toc-level-3" href="#section-45">11.4 Self高 / Other低の代表軌道</a>
+<a class="toc-level-3" href="#section-46">11.5 Self低 / Other高の代表軌道</a>
+<a class="toc-level-3" href="#section-47">11.6 事実に基づく分析</a>
+<a class="toc-level-2" href="#section-48">12. Other保護の結果</a>
+<a class="toc-level-3" href="#section-49">12.1 実行結果</a>
+<a class="toc-level-3" href="#section-50">12.2 事実に基づく分析</a>
+<a class="toc-level-2" href="#section-51">13. 実装失敗と科学的負の結果</a>
+<a class="toc-level-3" href="#section-52">13.1 修正済みの実装失敗</a>
+<a class="toc-level-3" href="#section-53">13.2 保存した科学的負の結果</a>
+<a class="toc-level-2" href="#section-54">14. 研究質問への回答</a>
+<a class="toc-level-2" href="#section-55">15. Stage status</a>
+<a class="toc-level-2" href="#section-56">16. テストと検証</a>
+<a class="toc-level-3" href="#section-57">16.1 実行済みテスト</a>
+<a class="toc-level-3" href="#section-58">16.2 DMBN semantics test</a>
+<a class="toc-level-2" href="#section-59">17. 成果物</a>
+<a class="toc-level-3" href="#section-60">17.1 データセット</a>
+<a class="toc-level-3" href="#section-61">17.2 主要checkpoint</a>
+<a class="toc-level-3" href="#section-62">17.3 図</a>
+<a class="toc-level-3" href="#section-63">17.4 シミュレーション動画</a>
+<a class="toc-level-2" href="#section-64">18. 再現手順</a>
+<a class="toc-level-3" href="#section-65">18.1 環境とテスト</a>
+<a class="toc-level-3" href="#section-66">18.2 Selfデータ生成・前処理・物理評価</a>
+<a class="toc-level-3" href="#section-67">18.3 Stage 3A–3C学習</a>
+<a class="toc-level-3" href="#section-68">18.4 Dissociationデータと中心評価</a>
+<a class="toc-level-3" href="#section-69">18.5 本報告書の図を再生成</a>
+<a class="toc-level-3" href="#section-70">18.6 シミュレーション動画を再生成</a>
+<a class="toc-level-2" href="#section-71">19. 限界と主張可能範囲</a>
+<a class="toc-level-3" href="#section-72">19.1 限界</a>
+<a class="toc-level-3" href="#section-73">19.2 現時点で主張できること</a>
+<a class="toc-level-3" href="#section-74">19.3 主張できないこと</a>
+<a class="toc-level-2" href="#section-75">20. 結論と次の技術的優先事項</a>
+<a class="toc-level-2" href="#video-players">動画プレイヤー</a></nav>
+  <main><h1 id="report-title">PyCubSim2 × Deep Modality Blending Networks</h1>
+<h2 id="section-02">Self経験からSelf反実仮想・Other実状態予測・Self/Other分離・Other保護へ</h2>
+<p><strong>本研究の中心的な実行結果は、同一種の外的イベントに対して「Selfならどうなるか」と「Otherに実際に何が起きるか」を連続的な身体状態として分離できた一方、固定閾値によるOther保護行動までは成立しなかった、という部分的成功である。</strong> Other専用モデルはSelf投影に比べ、テスト軌道のMAEを <strong>Tで44.5%・Pで94.5%・Iで50.9%</strong> 改善した。しかし高リスクOtherの予測 <code>H_action=0.6850</code> は事前固定閾値 <code>0.75</code> を下回り、Stage 8の介入条件を満たさなかった。</p>
+<ul class="report-list"><li class="depth-0"><strong>報告日</strong>: 2026-09-03</li><li class="depth-0"><strong>実行環境</strong>: Python 3.10、NumPy 1.26.4、PyBullet 3.25、SciPy 1.15.2、Matplotlib 3.10.9</li><li class="depth-0"><strong>計算資源</strong>: ローカルCPU、headless PyBullet、GPU不使用</li><li class="depth-0"><strong>ブランチ</strong>: <code>research/pain-self-other-dmbn</code></li><li class="depth-0"><strong>基準コミット</strong>: PyCubSim2 <code>23353265cba6e32e295fbe98be98f7db8f43152e</code></li><li class="depth-0"><strong>結果の範囲</strong>: シミュレータに物理的に接地した身体帰結予測であり、主観的痛み・生物学的共感・意識の実証ではない</li></ul>
+<hr>
+<h2 id="section-03">1. 要旨</h2>
+<h3 id="section-04">1.1 既知の客観的事実</h3>
+<p>本研究では、<strong>PyCubSim2/PyBullet</strong> 上で接触、関節運動、関節トルクを発生させ、観測者Aの自己経験と、観測対象Bに生じる身体帰結を別々に収録した。学習対象は <strong>X（視覚）・T（触覚）・P（固有受容）・I（内部機械状態）</strong> の4モダリティであり、研究者が作った隠れた痛みラベル <code>Y_pain</code> はDMBNの教師信号にしていない。</p>
+<p>物理データはSelfデータセット <strong>363エピソード</strong>、Self/Other解離データセット <strong>160エピソード</strong> である。Selfデータでは、速度から力積への効果量 <code>η²=0.1820</code>、姿勢からピークトルクへの効果量 <code>η²=0.5558</code>、姿勢から累積負荷への効果量 <code>η²=0.2024</code> が得られた。速度からピーク接触力への効果は <code>η²=0.0091</code> と小さかった。</p>
+<p>学習器は、元論文の <strong>Deep Modality Blending Network（DMBN）</strong> の観測／クエリ形式、モダリティ別エンコーダ、確率的ブレンディング、可用性重み、独立した目標時刻クエリ、モダリティ別確率デコーダを維持した現代化実装である（Seker et al., <em>Neural Networks</em>, 2022, <a href="https://doi.org/10.1016/j.neunet.2021.11.004">DOI</a>; <a href="https://github.com/myunusseker/Deep-Modality-Blending-Networks">公式実装</a>）。</p>
+<h3 id="section-05">1.2 事実に基づく分析</h3>
+<p>中心的なSelf/Other不一致条件では、モデルが予測した連続値は次のように反転した。</p>
+<div class="table-wrap"><table><thead><tr><th scope="col">条件</th><th scope="col">予測Self-CF <code>H_action</code></th><th scope="col">予測Other <code>H_action</code></th><th scope="col">実測Other <code>H_action</code></th><th scope="col">閾値判定</th></tr></thead><tbody><tr><td><strong>Self高 / Other低</strong></td><td>0.7080</td><td>0.2961</td><td>0.3234</td><td>非介入は正しい</td></tr><tr><td><strong>Self低 / Other高</strong></td><td>0.2963</td><td>0.6850</td><td>0.9950</td><td>非介入は誤り</td></tr></tbody></table></div>
+<p>したがって、<strong>Self投影とOther状態推定の表現上の分離</strong>は支持された。一方で、予測振幅の過小評価が行動閾値をまたぐため、<strong>選択的Other保護</strong>は支持されなかった。これは実装破損ではなく、連続予測精度と行動判断の間に残った科学的・工学的失敗として保存する。</p>
+<hr>
+<h2 id="section-06">2. 研究目的と仮説</h2>
+<h3 id="section-07">2.1 研究質問</h3>
+<p><strong>主要研究質問</strong>は、ロボットAが自身の物理経験から外的イベントと身体帰結の時間的関係を学び、そのモデルでOther観察からSelf反実仮想を生成し、さらにOther固有情報によってOtherの実状態へ補正できるか、である。</p>
+<p>本研究は次の三つを混同しない。</p>
+<div class="table-wrap"><table><thead><tr><th scope="col">概念</th><th scope="col">定義</th><th scope="col">入力</th><th scope="col">正解参照</th></tr></thead><tbody><tr><td><strong>Self actual</strong></td><td>Aが接触を受けたときの実身体状態</td><td>Aへの物理イベント</td><td>Aの実測 <code>T/P/I</code></td></tr><tr><td><strong>Self counterfactual（Self-CF）</strong></td><td>BへのイベントがAに起きたならどうなるか</td><td>Aから見た <code>X_other</code></td><td>同一軌道でAを刺激した対エピソード</td></tr><tr><td><strong>Other actual</strong></td><td>Bに実際に生じた身体状態</td><td><code>X_other</code> とB情報</td><td>Bの実測 <code>T/P/I</code></td></tr></tbody></table></div>
+<h3 id="section-08">2.2 反証可能な仮説</h3>
+<ul class="report-list"><li class="depth-0"><strong>H1</strong>: Self経験で学習したDMBNは、Otherイベント観察からSelf-CF軌道を生成できる。</li><li class="depth-0"><strong>H2</strong>: SelfとOtherの身体条件が異なる場合、Self投影だけではOther実状態を系統的に誤る。</li><li class="depth-0"><strong>H3</strong>: Other固有の較正または身体文脈は、Other実状態予測をSelf投影より改善する。</li><li class="depth-0"><strong>H4</strong>: 改善されたOther予測は、Self高／Other低では介入せず、Self低／Other高では介入する保護行動を支えられる。</li></ul>
+<h3 id="section-09">2.3 研究全体の流れ</h3>
+<figure id="figure-1"><a href="figures/01_study_design.png" target="_blank" rel="noopener"><img src="figures/01_study_design.png" alt="Self経験からOther状態推定までの研究設計" loading="lazy"></a><figcaption><strong>図1 — Self経験からOther状態推定までの研究設計</strong> — <strong>画像ファイル名:</strong> <a href="figures/01_study_design.png"><code>01_study_design.png</code></a></figcaption></figure>
+<p>図1は、Otherを観察した後もSelf-CFとOther予測を別の出力として保持する設計を示す。Other actualセンサは評価時の物理的正解であり、Self-CFの正解と置換しない。</p>
+<hr>
+<h2 id="section-10">3. 先行研究との関係</h2>
+<h3 id="section-11">3.1 既知の客観的事実</h3>
+<div class="table-wrap"><table><thead><tr><th scope="col">世代</th><th scope="col">モダリティ</th><th scope="col">実証・提案の中心</th><th scope="col">本研究での扱い</th></tr></thead><tbody><tr><td><strong>Generation A: Original DMBN</strong></td><td>Vision + Proprioception</td><td>不完全観測、欠損モダリティ補完、任意時刻クエリ、共通潜在表現</td><td>観測／クエリ意味論と確率的ブレンディングを継承</td></tr><tr><td><strong>Generation B: Artificial Pain</strong></td><td>Vision + Touch</td><td>視覚から将来触覚を回帰し、下流閾値で回避</td><td>DMBNとharm readoutと行動を分離して継承</td></tr><tr><td><strong>Generation C: Silicopathy</strong></td><td>概念上の多モダリティ</td><td>自己経験を介した他者の内部シミュレーション</td><td>短期の身体経路だけを研究仮説として採用</td></tr><tr><td><strong>Generation D: 本研究</strong></td><td>X + T + P + I</td><td>Self実状態、Self-CF、Other実状態、明示的分離、Other保護</td><td>PyBullet実測値で中央仮説を検証</td></tr></tbody></table></div>
+<ul class="report-list"><li class="depth-0">Original DMBN: Seker et al., <em>Imitation and Mirror Systems in Robots through Deep Modality Blending Networks</em>, <em>Neural Networks</em> 146, 2022（<a href="https://doi.org/10.1016/j.neunet.2021.11.004">DOI</a>）。</li><li class="depth-0">Artificial Pain: <em>Artificial Pain Representation with Tactile and Vision Blending</em>, IEEE-RAS Humanoids 2025（<a href="https://doi.org/10.1109/Humanoids65713.2025.11203122">DOI</a>）。</li><li class="depth-0">Silicopathy: <em>Silicopathy: Artificial Empathy through Cognitive and Affective Development of Pain</em>, IEEE ICDL 2025（<a href="https://doi.org/10.1109/ICDL63968.2025.11204355">DOI</a>）。</li><li class="depth-0">物理環境: PyCubSim2公式リポジトリ（<a href="https://github.com/yuta4869/PyCubSim2">GitHub</a>）。</li></ul>
+<p>詳細な引用箇所、実装済み事項、提案に留まる事項、変更理由は <a href="../../../docs/REFERENCE_AUDIT.md"><code>docs/REFERENCE_AUDIT.md</code></a> に分離している。</p>
+<h3 id="section-12">3.2 事実に基づく分析</h3>
+<p>Artificial Pain研究の実験的分離である「Vision/Touch学習 → Touch予測 → 下流の痛み判定 → 回避」を維持しつつ、物体カテゴリが害を決める構造は採用しなかった。同じ球形プローブでも、速度、姿勢、接触部位、制御ゲイン、モータ力制限により物理帰結が変化する。このため本研究の予測対象は、物体名に結びついた害ラベルではなく、<strong>外的イベントと身体条件から生じた軌道</strong>である。</p>
+<hr>
+<h2 id="section-13">4. 実験装置と物理プロトコル</h2>
+<h3 id="section-14">4.1 シミュレーション環境</h3>
+<ul class="report-list"><li class="depth-0"><strong>物理ステップ</strong>: 240 Hz</li><li class="depth-0"><strong>左眼RGB</strong>: 約30 Hz、<code>128 × 128 × 3</code></li><li class="depth-0"><strong>1エピソード</strong>: 2.0 s</li><li class="depth-1">0.0–0.4 s: ベースライン</li><li class="depth-1">0.4–0.9 s: プローブ接近</li><li class="depth-1">0.9–1.1 s: 接触</li><li class="depth-1">1.1–1.4 s: 除去</li><li class="depth-1">1.4–2.0 s: 回復</li><li class="depth-0"><strong>学習用リサンプリング</strong>: 60時点、正規化時刻 <code>[0,1]</code></li><li class="depth-0"><strong>学習用画像</strong>: CPU実験のため決定論的面積平均で <code>16 × 16 × 3</code> に縮小</li><li class="depth-0"><strong>プローブ</strong>: 全条件で同じ球形形状を使用し、物体カテゴリを害の手掛かりにしない</li></ul>
+<h3 id="section-15">4.2 モダリティ</h3>
+<div class="table-wrap"><table><thead><tr><th scope="col">モダリティ</th><th scope="col">実測・導出内容</th><th scope="col">学習表現</th><th scope="col">物理単位の保持</th></tr></thead><tbody><tr><td><strong>X: Exteroception</strong></td><td>左眼RGB、任意ログとしてdepth/segmentation</td><td><code>[60,16,16,3]</code>、<code>[0,1]</code></td><td>raw RGBを別保存</td></tr><tr><td><strong>T: Touch</strong></td><td>接触有無、点数、body/link ID、位置、法線力、duration、impulse、相対速度</td><td>連続・離散接触特徴</td><td>N、N·s、s、m</td></tr><tr><td><strong>P: Proprioception</strong></td><td>左上肢7関節の位置・速度</td><td><code>[60,14]</code></td><td>rad、rad/s相当</td></tr><tr><td><strong>I: Internal mechanical state</strong></td><td>関節トルク、<code>abs(torque×velocity)</code>、累積・低域通過負荷</td><td><code>[60,16]</code></td><td>N·m、N·m/s、N·m·s</td></tr></tbody></table></div>
+<p><strong>Iは人間の生物学的インターオセプションではない。</strong> PyBulletの関節状態から直接取得した値、または明記された決定論的変換だけで構成する。</p>
+<h3 id="section-16">4.3 Self factorial実験</h3>
+<p><strong>Self Fullデザイン</strong>は <code>3速度 × 3姿勢 × 2接触部位 × 20反復 = 360接触試行</code> と、3つの無接触対照からなる。</p>
+<div class="table-wrap"><table><thead><tr><th scope="col">因子</th><th scope="col">水準</th><th scope="col">各組合せの反復</th><th scope="col">操作の目的</th></tr></thead><tbody><tr><td><strong>速度</strong></td><td>slow / medium / fast</td><td>20</td><td>力・力積の変化</td></tr><tr><td><strong>姿勢</strong></td><td>flexed / neutral / extended</td><td>20</td><td>関節トルク・負荷の変化</td></tr><tr><td><strong>接触部位</strong></td><td>hand / forearm</td><td>20</td><td>局所的T/P/I帰結の変化</td></tr></tbody></table></div>
+<h3 id="section-17">4.4 Self/Other不一致実験</h3>
+<p><strong>Dissociationデザイン</strong>は4条件、各20ペア、各ペアをOther actualとSelf参照の2役で実行し、合計 <code>4 × 20 × 2 = 160エピソード</code> とした。同じpair seedではプローブ軌道を一致させ、身体条件のみを変えた。</p>
+<div class="table-wrap"><table><thead><tr><th scope="col">条件</th><th scope="col">Self身体</th><th scope="col">Other身体</th><th scope="col">期待関係</th><th scope="col">主要性</th></tr></thead><tbody><tr><td><strong>Matched high</strong></td><td>rigid</td><td>rigid</td><td>Self高・Other高</td><td>整合対照</td></tr><tr><td><strong>Self high / Other low</strong></td><td>rigid</td><td>compliant</td><td>Self高・Other低</td><td>主要不一致</td></tr><tr><td><strong>Self low / Other high</strong></td><td>compliant</td><td>rigid</td><td>Self低・Other高</td><td>主要不一致</td></tr><tr><td><strong>Matched low</strong></td><td>compliant</td><td>compliant</td><td>Self低・Other低</td><td>整合対照</td></tr></tbody></table></div>
+<ul class="report-list"><li class="depth-0"><strong>rigid</strong>: <code>motor_force_scale=1.0</code>、<code>position_gain_scale=1.0</code></li><li class="depth-0"><strong>compliant</strong>: <code>motor_force_scale=0.05</code>、<code>position_gain_scale=0.10</code></li><li class="depth-0"><strong>見かけの統制</strong>:</li><li class="depth-1">同一プローブ形状を維持</li><li class="depth-1">同一pair seedで外部軌道を対応</li><li class="depth-1">色と背景をランダム化</li><li class="depth-1">A/B役割を実測し、隠れたvulnerability scalarを使わない</li></ul>
+<hr>
+<h2 id="section-18">5. データ構造・分割・正規化</h2>
+<h3 id="section-19">5.1 Rawエピソード</h3>
+<p>各エピソードは次を保存する。</p>
+<ul class="report-list"><li class="depth-0"><code>metadata.json</code></li><li class="depth-1">episode ID、seed、役割、速度、姿勢、対象link、身体条件、制御値、物理／カメラ周波数、ソフトウェア版</li><li class="depth-0"><code>trajectory.npz</code></li><li class="depth-1">物理時刻、関節位置・速度・トルク、機械power/load、probe pose、接触点、法線力、link ID、力積</li><li class="depth-0"><code>rgb.npz</code></li><li class="depth-1">カメラ時刻と左眼RGB</li></ul>
+<h3 id="section-20">5.2 分割</h3>
+<div class="table-wrap"><table><thead><tr><th scope="col">データセット</th><th scope="col">総数</th><th scope="col">Train</th><th scope="col">Validation</th><th scope="col">Test</th><th scope="col">漏洩対策</th></tr></thead><tbody><tr><td><strong>Self Full</strong></td><td>363</td><td>255</td><td>54</td><td>54</td><td>エピソード単位・条件層化</td></tr><tr><td><strong>Dissociation</strong></td><td>160</td><td>112</td><td>24</td><td>24</td><td>同一pair seedを同じsplitへ固定</td></tr></tbody></table></div>
+<p><strong>フレーム単位分割は禁止</strong>し、同一エピソードを複数splitにまたがせていない。Dissociationでは同じ外部イベントを共有する対エピソードも同一splitに割り当て、seed漏洩数は <strong>0</strong> である。</p>
+<h3 id="section-21">5.3 正規化</h3>
+<ul class="report-list"><li class="depth-0">RGB: <code>uint8 / 255</code></li><li class="depth-0">時刻: 各2秒区間を <code>[0,1]</code> に写像し、物理秒も保持</li><li class="depth-0">T/P/I: training splitの平均・標準偏差だけを使用</li><li class="depth-0">二値接触: 評価レポートでは二値のまま扱う</li><li class="depth-0">物理量評価: 逆正規化後にN、N·s、N·m、N·m·sで計算</li></ul>
+<hr>
+<h2 id="section-22">6. DMBN実装</h2>
+<h3 id="section-23">6.1 保存したアルゴリズム不変条件</h3>
+<p><strong>DMBNは自己回帰 <code>t→t+1</code> モデルではない。</strong> 各予測は、任意時刻の観測集合と独立したtarget query timeから直接計算する。</p>
+<ol><li>各モダリティ <code>m</code> の観測を <code>(t_obs, value_m)</code> として専用encoderへ入れる。</li><li>同一モダリティ内の複数観測表現を平均集約する。</li><li>可用性・信頼性 <code>w_m</code> と確率係数を用いてモダリティ表現を混合する。</li><li>共通潜在表現と独立な <code>t_query</code> を各modality decoderへ入れる。</li><li>各decoderが平均とscaleを出力する。</li><li>複数target timeはベクトル化しても互いの予測値を入力に戻さない。</li></ol>
+<h3 id="section-24">6.2 現代化した実装</h3>
+<div class="table-wrap"><table><thead><tr><th scope="col">項目</th><th scope="col">原DMBN notebook</th><th scope="col">本実装</th><th scope="col">科学的影響</th></tr></thead><tbody><tr><td><strong>framework</strong></td><td>旧TensorFlow/Keras</td><td>NumPy reverse-mode autodiff</td><td>APIだけ変更</td></tr><tr><td><strong>画像encoder</strong></td><td>6-block CNN</td><td><code>16×16</code> RGB用modality-specific MLP</td><td>高解像度表現力は低下</td></tr><tr><td><strong>latent幅</strong></td><td>共通表現</td><td>32</td><td>ブレンディング意味論を維持</td></tr><tr><td><strong>非線形</strong></td><td>ReLU系</td><td>Leaky ReLU、slope 0.01</td><td>dead image unitsを回避</td></tr><tr><td><strong>出力</strong></td><td>probabilistic mean/scale</td><td>Gaussian mean/softplus scale</td><td>不確実性を保持</td></tr><tr><td><strong>loss</strong></td><td>Gaussian NLL中心</td><td>NLL + normalized mean MSE</td><td>mean collapseを抑制</td></tr><tr><td><strong>最適化</strong></td><td>長時間反復</td><td>validation選択、early stopping、global clip 5.0</td><td>計算量を現実化</td></tr></tbody></table></div>
+<p>元実装との差分と保存した不変条件は <a href="../../../docs/DMBN_IMPLEMENTATION_NOTES.md"><code>docs/DMBN_IMPLEMENTATION_NOTES.md</code></a> に詳述している。</p>
+<h3 id="section-25">6.3 学習時の観測条件</h3>
+<ul class="report-list"><li class="depth-0"><strong>Stage 3A</strong>: X+PでX→P、P→X、過去／未来query、欠損modality、独立queryを検証</li><li class="depth-0"><strong>Stage 3B</strong>: X+TでX→将来T、T→X、部分X→全Tを検証</li><li class="depth-0"><strong>Stage 3C</strong>: X/T/P/IでX-only、XP、XPI、P-only条件を検証</li><li class="depth-0"><strong>Stage 5</strong>: <code>X_other</code> をSelf body modelへ与えSelf-CFを生成</li><li class="depth-0"><strong>Stage 6/7</strong>: rigid/compliant別Other modelまたは較正データでOther actualを予測</li></ul>
+<hr>
+<h2 id="section-26">7. 物理妥当性の結果</h2>
+<h3 id="section-27">7.1 分布</h3>
+<figure id="figure-2"><a href="figures/02_physics_distributions.png" target="_blank" rel="noopener"><img src="figures/02_physics_distributions.png" alt="速度・姿勢と物理帰結の分布" loading="lazy"></a><figcaption><strong>図2 — 速度・姿勢と物理帰結の分布</strong> — <strong>画像ファイル名:</strong> <a href="figures/02_physics_distributions.png"><code>02_physics_distributions.png</code></a></figcaption></figure>
+<p>図2は各因子水準120試行の分布である。速度操作はピーク力よりも接触時間を含む力積に現れ、姿勢操作はピークトルクと累積負荷に現れた。</p>
+<h3 id="section-28">7.2 効果量と自動ゲート</h3>
+<div class="table-wrap"><table><thead><tr><th scope="col">関係</th><th scope="col"><code>η²</code></th><th scope="col">事前ゲート <code>η²≥0.01</code></th><th scope="col">判定</th><th scope="col">解釈</th></tr></thead><tbody><tr><td><strong>速度 → peak force</strong></td><td>0.0091</td><td>0.01</td><td>単独では未達</td><td>飽和・接触部位差が支配的</td></tr><tr><td><strong>速度 → impulse</strong></td><td>0.1820</td><td>0.01</td><td>PASS</td><td>接触持続を含む速度条件差あり</td></tr><tr><td><strong>姿勢 → peak torque</strong></td><td>0.5558</td><td>0.01</td><td>PASS</td><td>強い姿勢依存</td></tr><tr><td><strong>姿勢 → accumulated load</strong></td><td>0.2024</td><td>0.01</td><td>PASS</td><td>中程度の姿勢依存</td></tr></tbody></table></div>
+<ul class="report-list"><li class="depth-0">接触試行で非ゼロ力: <strong>PASS</strong></li><li class="depth-0">無接触対照で約ゼロ力: <strong>PASS</strong></li><li class="depth-0">速度関連の物理差: <strong>PASS</strong></li><li class="depth-0">姿勢関連の物理差: <strong>PASS</strong></li></ul>
+<h3 id="section-29">7.3 全18条件の物理平均</h3>
+<div class="table-wrap"><table><thead><tr><th scope="col">Speed</th><th scope="col">Posture</th><th scope="col">Location</th><th scope="col">n</th><th scope="col">Peak force [N]</th><th scope="col">Impulse [N·s]</th><th scope="col">Peak torque [N·m]</th><th scope="col">Load [N·m·s]</th></tr></thead><tbody><tr><td>fast</td><td>extended</td><td>forearm</td><td>20</td><td>24.6219</td><td>7.9246</td><td>5.3030</td><td>13.8297</td></tr><tr><td>fast</td><td>extended</td><td>hand</td><td>20</td><td>13.2992</td><td>3.3741</td><td>3.2212</td><td>12.4893</td></tr><tr><td>fast</td><td>flexed</td><td>forearm</td><td>20</td><td>20.0015</td><td>4.6713</td><td>2.4948</td><td>12.3786</td></tr><tr><td>fast</td><td>flexed</td><td>hand</td><td>20</td><td>7.1224</td><td>1.0276</td><td>2.4950</td><td>12.6774</td></tr><tr><td>fast</td><td>neutral</td><td>forearm</td><td>20</td><td>24.7147</td><td>8.4324</td><td>3.5394</td><td>14.0674</td></tr><tr><td>fast</td><td>neutral</td><td>hand</td><td>20</td><td>10.9142</td><td>2.3382</td><td>3.2313</td><td>14.0813</td></tr><tr><td>medium</td><td>extended</td><td>forearm</td><td>20</td><td>24.0293</td><td>10.2817</td><td>4.7893</td><td>14.0157</td></tr><tr><td>medium</td><td>extended</td><td>hand</td><td>20</td><td>13.1838</td><td>4.8437</td><td>3.1488</td><td>12.3450</td></tr><tr><td>medium</td><td>flexed</td><td>forearm</td><td>20</td><td>18.7237</td><td>5.9384</td><td>2.4948</td><td>12.0219</td></tr><tr><td>medium</td><td>flexed</td><td>hand</td><td>20</td><td>5.2584</td><td>1.0841</td><td>2.4949</td><td>12.6236</td></tr><tr><td>medium</td><td>neutral</td><td>forearm</td><td>20</td><td>23.4935</td><td>11.8199</td><td>3.2920</td><td>13.4982</td></tr><tr><td>medium</td><td>neutral</td><td>hand</td><td>20</td><td>8.7998</td><td>2.7804</td><td>3.1003</td><td>13.8440</td></tr><tr><td>slow</td><td>extended</td><td>forearm</td><td>20</td><td>24.0886</td><td>18.6638</td><td>4.6261</td><td>14.8372</td></tr><tr><td>slow</td><td>extended</td><td>hand</td><td>20</td><td>12.3173</td><td>7.2302</td><td>3.0375</td><td>11.7591</td></tr><tr><td>slow</td><td>flexed</td><td>forearm</td><td>20</td><td>17.9574</td><td>8.4896</td><td>2.4945</td><td>11.2096</td></tr><tr><td>slow</td><td>flexed</td><td>hand</td><td>20</td><td>4.6692</td><td>1.2894</td><td>2.4949</td><td>12.4764</td></tr><tr><td>slow</td><td>neutral</td><td>forearm</td><td>20</td><td>23.3339</td><td>26.0159</td><td>3.2907</td><td>10.9019</td></tr><tr><td>slow</td><td>neutral</td><td>hand</td><td>20</td><td>8.6706</td><td>4.0990</td><td>3.0736</td><td>13.3595</td></tr></tbody></table></div>
+<h3 id="section-30">7.4 事実に基づく分析</h3>
+<p>速度の単純な順位とピーク力は一致していない。低速条件ほど接触が長くなり、力積が大きくなる組合せもある。この結果は「速いほど常に危険」という単純ラベルを否定し、身体姿勢・接触部位・持続時間を含む多変量軌道を予測する必要性を示す。ただし、この設計だけから各操作の因果効果を厳密に同定したとは主張しない。</p>
+<hr>
+<h2 id="section-31">8. Self DMBNの結果</h2>
+<h3 id="section-32">8.1 学習履歴</h3>
+<figure id="figure-3"><a href="figures/03_training_history.png" target="_blank" rel="noopener"><img src="figures/03_training_history.png" alt="Stage 3Aから3Cの学習履歴" loading="lazy"></a><figcaption><strong>図3 — Stage 3Aから3CのDMBN学習履歴</strong> — <strong>画像ファイル名:</strong> <a href="figures/03_training_history.png"><code>03_training_history.png</code></a></figcaption></figure>
+<p>図3の赤点がvalidation objectiveで選択したcheckpointである。X+TとX+T+P+Iではvalidation曲線が後半に悪化し、学習終了時ではなく最良checkpointを使う必要があった。これはtraining objective低下だけでは汎化を保証しないことを示す。</p>
+<h3 id="section-33">8.2 軌道MAEとベースライン</h3>
+<div class="table-wrap"><table><thead><tr><th scope="col">Stage / Context</th><th scope="col">Target</th><th scope="col">DMBN MAE</th><th scope="col">Unconditional mean MAE</th><th scope="col">相対結果</th></tr></thead><tbody><tr><td><strong>3A X→P</strong></td><td>P</td><td>0.000815</td><td>0.038775</td><td>97.9%低い</td></tr><tr><td><strong>3A P→X</strong></td><td>X</td><td>0.005895</td><td>0.043111</td><td>86.3%低い</td></tr><tr><td><strong>3B X→T</strong></td><td>T</td><td>2.944523</td><td>2.683248</td><td>9.7%高い</td></tr><tr><td><strong>3B T→T</strong></td><td>T</td><td>2.282981</td><td>2.683248</td><td>14.9%低い</td></tr><tr><td><strong>3C X→P</strong></td><td>P</td><td>0.002578</td><td>0.038775</td><td>93.4%低い</td></tr><tr><td><strong>3C X→T</strong></td><td>T</td><td>3.269444</td><td>2.683248</td><td>21.8%高い</td></tr><tr><td><strong>3C X→I</strong></td><td>I</td><td>0.219652</td><td>0.178898</td><td>22.8%高い</td></tr><tr><td><strong>3C X+P+I→T</strong></td><td>T</td><td>2.404786</td><td>2.683248</td><td>10.4%低い</td></tr><tr><td><strong>3C X+P+I→I</strong></td><td>I</td><td>0.191741</td><td>0.178898</td><td>7.2%高い</td></tr></tbody></table></div>
+<figure id="figure-4"><a href="figures/04_self_model_vs_baseline.png" target="_blank" rel="noopener"><img src="figures/04_self_model_vs_baseline.png" alt="DMBNとunconditional mean軌道の相対誤差" loading="lazy"></a><figcaption><strong>図4 — DMBNとunconditional mean軌道の相対MAE</strong> — <strong>画像ファイル名:</strong> <a href="figures/04_self_model_vs_baseline.png"><code>04_self_model_vs_baseline.png</code></a></figcaption></figure>
+<p>図4では1.0未満がmean trajectoryより良い。Pは大幅に改善する一方、X-onlyのT/I振幅はmeanを下回らない。Xに早期P/Iを追加した場合だけTがmeanを <strong>10.4%</strong> 上回った。</p>
+<h3 id="section-34">8.3 時間構造</h3>
+<ul class="report-list"><li class="depth-0">Stage 3B X→Tのcontact onset error: <strong>−0.0194 s</strong></li><li class="depth-0">mean trajectoryのcontact onset error: <strong>0.1384 s</strong></li><li class="depth-0">Stage 3B X→Tの平均peak force過小評価: <strong>5.55 N</strong></li></ul>
+<h3 id="section-35">8.4 事実に基づく分析</h3>
+<ul class="report-list"><li class="depth-0"><strong>Q1の答え</strong>: Self X/T/P/I学習は部分的に支持された。X/Pは強いが、T/Iの絶対振幅は不十分である。</li><li class="depth-0"><strong>Q2の答え</strong>: early XはPと接触時刻を予測できたが、将来T/I振幅の十分条件ではなかった。</li><li class="depth-0">Stage 3Bは接触の「いつ」をmeanより捉えたが、「どれほど強いか」を過小評価した。したがってStage 3Bを成功とだけ表現するのは不正確で、<strong>PARTIAL</strong>が妥当である。</li></ul>
+<hr>
+<h2 id="section-36">9. Harm readoutとSelf保護</h2>
+<h3 id="section-37">9.1 透明な下流readout</h3>
+<p><strong>DMBNの主出力はT/P/Iであり、<code>H_action</code> は行動判断専用の後処理である。</strong> training splitの95パーセンタイルを基準に各比を <code>[0,2]</code> へclipし、次式を使った。</p>
+<pre><code class="language-text">H_action = 0.35 × peak_force / F95
+         + 0.25 × impulse / J95
+         + 0.20 × peak_torque / τ95
+         + 0.20 × accumulated_load / L95</code></pre>
+<ul class="report-list"><li class="depth-0"><strong>行動閾値</strong>: <code>H_action ≥ 0.75</code></li><li class="depth-0"><strong>高予測時</strong>: arm withdrawalまたはprobe stop</li><li class="depth-0"><strong>低予測時</strong>: 継続</li></ul>
+<p>この重みは透明な工学的意思決定基準であり、主観的痛みの尺度ではない。閾値はStage 8の結果を見てから変更していない。</p>
+<hr>
+<h2 id="section-38">10. Other予測と較正</h2>
+<h3 id="section-39">10.1 較正量ごとの結果</h3>
+<div class="table-wrap"><table><thead><tr><th scope="col">B condition</th><th scope="col">Requested / Realized</th><th scope="col">T MAE</th><th scope="col">P MAE</th><th scope="col">I MAE</th></tr></thead><tbody><tr><td><strong>Rigid</strong></td><td>5% / 7.14%</td><td>0.906795</td><td>0.000437</td><td>0.088874</td></tr><tr><td><strong>Rigid</strong></td><td>20% / 21.43%</td><td>0.936255</td><td>0.000368</td><td>0.137808</td></tr><tr><td><strong>Rigid</strong></td><td>100% / 100%</td><td>1.034545</td><td>0.000473</td><td>0.110722</td></tr><tr><td><strong>Compliant</strong></td><td>5% / 7.14%</td><td>0.286459</td><td>0.010254</td><td>0.103849</td></tr><tr><td><strong>Compliant</strong></td><td>20% / 21.43%</td><td>0.168263</td><td>0.002660</td><td>0.054644</td></tr><tr><td><strong>Compliant</strong></td><td>100% / 100%</td><td>0.175357</td><td>0.002273</td><td>0.038963</td></tr></tbody></table></div>
+<figure id="figure-5"><a href="figures/05_other_calibration.png" target="_blank" rel="noopener"><img src="figures/05_other_calibration.png" alt="Other較正量とテストMAE" loading="lazy"></a><figcaption><strong>図5 — Other較正量とテスト軌道MAE</strong> — <strong>画像ファイル名:</strong> <a href="figures/05_other_calibration.png"><code>05_other_calibration.png</code></a></figcaption></figure>
+<p>図5が示すとおり、較正量と精度は単調関係ではない。RigidのTは7.14%較正が最小MAE、Pは21.43%、Iは7.14%であり、単純に100%へ増やせば全指標が改善するわけではなかった。</p>
+<h3 id="section-40">10.2 事実に基づく分析</h3>
+<ul class="report-list"><li class="depth-0"><strong>Q4の答え</strong>: Self-only transferは弱い。Self投影はOther専用予測よりT/P/Iすべてで大きな誤差を示した。</li><li class="depth-0"><strong>Q5の答え</strong>: Other身体文脈はSelf投影より有効だが、較正データ量の増加が単調に有効という仮説は支持されない。</li><li class="depth-0">実現率7.14%と21.43%は、condition-stratifiedな整数エピソード選択によりrequested 5%/20%からずれた値である。</li><li class="depth-0">condition-wise meanが一部のrigid/I比較でDMBNより強く、モデル複雑性自体が改善の理由とはいえない。</li></ul>
+<hr>
+<h2 id="section-41">11. 中心実験: Self/Other解離</h2>
+<h3 id="section-42">11.1 Harm readoutの4条件</h3>
+<figure id="figure-6"><a href="figures/06_dissociation_harm.png" target="_blank" rel="noopener"><img src="figures/06_dissociation_harm.png" alt="4条件のSelf-CFとOther harm readout" loading="lazy"></a><figcaption><strong>図6 — 4条件のSelf-CFとOther harm readout</strong> — <strong>画像ファイル名:</strong> <a href="figures/06_dissociation_harm.png"><code>06_dissociation_harm.png</code></a></figcaption></figure>
+<div class="table-wrap"><table><thead><tr><th scope="col">Condition</th><th scope="col">Actual Self H</th><th scope="col">Predicted Self-CF H</th><th scope="col">Actual Other H</th><th scope="col">Predicted Other H</th><th scope="col">Predicted action</th></tr></thead><tbody><tr><td><strong>Matched high</strong></td><td>0.8682</td><td>0.7081</td><td>0.9950</td><td>0.6850</td><td>非介入</td></tr><tr><td><strong>Self high / Other low</strong></td><td>0.8682</td><td>0.7080</td><td>0.3234</td><td>0.2961</td><td>非介入</td></tr><tr><td><strong>Self low / Other high</strong></td><td>0.3838</td><td>0.2963</td><td>0.9950</td><td>0.6850</td><td>非介入</td></tr><tr><td><strong>Matched low</strong></td><td>0.3838</td><td>0.2963</td><td>0.3234</td><td>0.2961</td><td>非介入</td></tr></tbody></table></div>
+<p>図6では、Self-CFはSelf身体条件に追従し、Other予測はOther身体条件に追従している。特に主要2条件で予測の大小関係が反転したため、連続表現上は単純Self投影から分離できている。ただし高状態を一貫して過小評価し、0.75の行動閾値を越えない。</p>
+<h3 id="section-43">11.2 Self投影に対する改善</h3>
+<div class="table-wrap"><table><thead><tr><th scope="col">Target</th><th scope="col">Self-projection MAE</th><th scope="col">Other-specific MAE</th><th scope="col">改善率</th><th scope="col">Shuffled-context MAE</th></tr></thead><tbody><tr><td><strong>T</strong></td><td>1.089944</td><td>0.604951</td><td>44.5%</td><td>1.543973</td></tr><tr><td><strong>P</strong></td><td>0.024899</td><td>0.001373</td><td>94.5%</td><td>0.047189</td></tr><tr><td><strong>I</strong></td><td>0.152389</td><td>0.074842</td><td>50.9%</td><td>0.227863</td></tr></tbody></table></div>
+<h3 id="section-44">11.3 Shortcut control</h3>
+<figure id="figure-7"><a href="figures/07_dissociation_controls.png" target="_blank" rel="noopener"><img src="figures/07_dissociation_controls.png" alt="Self projection、Other専用、body shuffle、time shiftの比較" loading="lazy"></a><figcaption><strong>図7 — Self projectionとshortcut controlの比較</strong> — <strong>画像ファイル名:</strong> <a href="figures/07_dissociation_controls.png"><code>07_dissociation_controls.png</code></a></figcaption></figure>
+<div class="table-wrap"><table><thead><tr><th scope="col">Control</th><th scope="col">T / Self projection</th><th scope="col">P / Self projection</th><th scope="col">I / Self projection</th><th scope="col">期待と結果</th></tr></thead><tbody><tr><td><strong>Self projection</strong></td><td>1.00×</td><td>1.00×</td><td>1.00×</td><td>比較基準</td></tr><tr><td><strong>Other-specific</strong></td><td>0.56×</td><td>0.06×</td><td>0.49×</td><td>改善、身体固有予測を支持</td></tr><tr><td><strong>Shuffled body context</strong></td><td>1.42×</td><td>1.90×</td><td>1.50×</td><td>悪化、文脈利用を支持</td></tr><tr><td><strong>Time-shifted X</strong></td><td>0.56×</td><td>0.06×</td><td>0.49×</td><td>ほぼ不変、時間利用を支持せず</td></tr></tbody></table></div>
+<p>図7は、身体文脈を誤対応させると全モダリティで悪化する一方、early Xの時刻を0.25ずらしても誤差が変わらないことを示す。したがって「body contextが必要」は支持されるが、「early Xの正しい観測時刻がこの結果を生んだ」は支持されない。</p>
+<h3 id="section-45">11.4 Self高 / Other低の代表軌道</h3>
+<figure id="figure-8"><a href="figures/08_self_high_other_low_trajectory.png" target="_blank" rel="noopener"><img src="figures/08_self_high_other_low_trajectory.png" alt="Self高Other低のT/P/I軌道" loading="lazy"></a><figcaption><strong>図8 — Self高／Other低条件のT/P/I代表軌道</strong> — <strong>画像ファイル名:</strong> <a href="figures/08_self_high_other_low_trajectory.png"><code>08_self_high_other_low_trajectory.png</code></a></figcaption></figure>
+<p>図8では、Actual Selfに大きい接触力があり、Actual Otherにはほぼ接触力がない。Predicted Self-CFは高い力を予測し、Predicted Otherは低く抑える。Pは初期値からの肘位置変化をmradで表示し、Iは肘トルクを物理単位で示す。</p>
+<h3 id="section-46">11.5 Self低 / Other高の代表軌道</h3>
+<figure id="figure-9"><a href="figures/09_self_low_other_high_trajectory.png" target="_blank" rel="noopener"><img src="figures/09_self_low_other_high_trajectory.png" alt="Self低Other高のT/P/I軌道" loading="lazy"></a><figcaption><strong>図9 — Self低／Other高条件のT/P/I代表軌道</strong> — <strong>画像ファイル名:</strong> <a href="figures/09_self_low_other_high_trajectory.png"><code>09_self_low_other_high_trajectory.png</code></a></figcaption></figure>
+<p>図9ではActual Otherに約9 Nの接触力が生じる一方、Actual Selfは低い。Predicted Otherは方向を正しく高くするが、ピークを約3 Nに過小評価する。Self-CFはほぼゼロ接触を予測し、SelfとOtherの分離方向は正しい。</p>
+<h3 id="section-47">11.6 事実に基づく分析</h3>
+<ul class="report-list"><li class="depth-0"><strong>Q3の答え</strong>: Other観察からSelf-CF出力を生成し、対となるA実測軌道に対して評価できた。ただしhigh amplitudeは過小評価した。</li><li class="depth-0"><strong>Q6の答え</strong>: Self高／Other低とSelf低／Other高を連続値では区別できた。</li><li class="depth-0">H2は支持された。Self projectionは主要不一致条件でOther専用予測より大きな軌道誤差を示した。</li><li class="depth-0">H3は部分的に支持された。正しいbody contextは改善し、shufflingで悪化したが、較正量に単調な効果はなかった。</li><li class="depth-0">time-shift controlの失敗から、観測／クエリ意味論が実装されていることと、実データで観測時刻が有効利用されたことは別である。</li></ul>
+<hr>
+<h2 id="section-48">12. Other保護の結果</h2>
+<h3 id="section-49">12.1 実行結果</h3>
+<figure id="figure-10"><a href="figures/10_protection_result.png" target="_blank" rel="noopener"><img src="figures/10_protection_result.png" alt="Other harm予測と実際の保護結果" loading="lazy"></a><figcaption><strong>図10 — Other harm予測と保護政策実行後の物理結果</strong> — <strong>画像ファイル名:</strong> <a href="figures/10_protection_result.png"><code>10_protection_result.png</code></a></figcaption></figure>
+<div class="table-wrap"><table><thead><tr><th scope="col">条件</th><th scope="col">Actual Other H</th><th scope="col">Predicted Other H</th><th scope="col">Expected action</th><th scope="col">Executed action</th><th scope="col">物理結果</th></tr></thead><tbody><tr><td><strong>Self high / Other low</strong></td><td>0.3234</td><td>0.2961</td><td>非介入</td><td>非介入</td><td>正しい</td></tr><tr><td><strong>Self low / Other high</strong></td><td>0.9950</td><td>0.6850</td><td>介入</td><td>非介入</td><td>誤り、force低減なし</td></tr></tbody></table></div>
+<p>図10の左はdecision input、右は政策実行後のpeak forceである。高リスクOther予測が閾値未満だったためstop-probeが発火せず、保護前後のピーク力は変化しなかった。</p>
+<h3 id="section-50">12.2 事実に基づく分析</h3>
+<ul class="report-list"><li class="depth-0"><strong>Q7の答え</strong>: 事前固定閾値0.75での選択的Other保護は支持されない。</li><li class="depth-0">H4は棄却された。連続値の大小関係が正しくても、calibration不足で意思決定閾値を越えなければ行動は失敗する。</li><li class="depth-0">結果を見て閾値を0.685未満へ変更すれば成功扱いにできるが、それはpost-hocな成功の作成になるため実施していない。</li></ul>
+<hr>
+<h2 id="section-51">13. 実装失敗と科学的負の結果</h2>
+<h3 id="section-52">13.1 修正済みの実装失敗</h3>
+<div class="table-wrap"><table><thead><tr><th scope="col">問題</th><th scope="col">根本原因</th><th scope="col">修正</th><th scope="col">再検証</th></tr></thead><tbody><tr><td><strong>PyBullet cylinder作成失敗</strong></td><td>visual shapeは<code>length</code>、collision shapeは<code>height</code>を要求</td><td>API引数を用途別に修正</td><td>headless試行PASS</td></tr><tr><td><strong>X encoder勾配消失</strong></td><td>正値中心RGBとplain ReLUで64 image hidden unitsがdead</td><td>Leaky ReLU 0.01</td><td>X→Pがmeanを改善</td></tr><tr><td><strong>予測mean collapse</strong></td><td>NLLだけでscale増大が難しいT/Iを吸収</td><td>NLL + normalized mean MSE、clip 5.0</td><td>mean predictionを再評価</td></tr><tr><td><strong>split leakage risk</strong></td><td>同一seedのSelf/Other対が別splitに入り得た</td><td>seed-grouped split</td><td>回帰テスト、leakage=0</td></tr></tbody></table></div>
+<h3 id="section-53">13.2 保存した科学的負の結果</h3>
+<ul class="report-list"><li class="depth-0"><strong>X-onlyのT/I振幅予測はunconditional meanを上回らない。</strong></li><li class="depth-0"><strong>Stage 3B X→Tのtrajectory MAEはmeanより9.7%悪い。</strong></li><li class="depth-0"><strong>Other較正量を増やしても精度は単調改善しない。</strong></li><li class="depth-0"><strong>0.25 normalized-time shiftで誤差が悪化しない。</strong></li><li class="depth-0"><strong>high Otherを過小評価し、Stage 8の介入に失敗した。</strong></li></ul>
+<p>これらはshape error、NaN、gradient disconnect、timestamp破損、接触欠如、split漏洩ではないことを確認した後の結果であり、都合のよい再調整で除去していない。</p>
+<hr>
+<h2 id="section-54">14. 研究質問への回答</h2>
+<div class="table-wrap"><table><thead><tr><th scope="col">Research question</th><th scope="col">結論</th><th scope="col">定量的根拠</th><th scope="col">Status</th></tr></thead><tbody><tr><td><strong>Q1: Self X/T/P/Iを学習できるか</strong></td><td>部分的</td><td>X→P 97.9%改善、XPI→T 10.4%改善、Iはmean未達</td><td>PARTIAL</td></tr><tr><td><strong>Q2: early Xから将来Self帰結を予測できるか</strong></td><td>Pと接触時刻のみ支持</td><td>onset −0.0194 s、T/I振幅はmean未達</td><td>PARTIAL</td></tr><tr><td><strong>Q3: Other観察からSelf-CFを生成できるか</strong></td><td>支持</td><td>別出力と対A実測参照を保存</td><td>DONE</td></tr><tr><td><strong>Q4: Self-onlyがOther actualへ転移するか</strong></td><td>弱い</td><td>Other-specificがT/P/Iで44.5/94.5/50.9%改善</td><td>NEGATIVE</td></tr><tr><td><strong>Q5: Other較正・文脈が改善するか</strong></td><td>文脈は支持、量の単調性は不支持</td><td>shuffleで1.42/1.90/1.50×へ悪化</td><td>PARTIAL</td></tr><tr><td><strong>Q6: 二つの不一致条件を分けられるか</strong></td><td>連続値で支持</td><td>Other H 0.2961 vs 0.6850</td><td>DONE</td></tr><tr><td><strong>Q7: 選択的Other保護を行えるか</strong></td><td>不支持</td><td>0.6850 &lt; 0.75、介入なし</td><td>PARTIAL/FAILED GATE</td></tr></tbody></table></div>
+<hr>
+<h2 id="section-55">15. Stage status</h2>
+<p><strong>DONEはコード、テスト、smoke/full実行、必要出力、acceptance checkが揃った場合だけに付与した。</strong></p>
+<div class="table-wrap"><table><thead><tr><th scope="col">Stage</th><th scope="col">Status</th><th scope="col">実行済み根拠</th></tr></thead><tbody><tr><td><strong>0</strong></td><td>DONE</td><td>3論文・公式notebookを監査し、audit/spec/notesを作成</td></tr><tr><td><strong>1</strong></td><td>DONE</td><td>deterministic X/T/P/I、無接触、接触、同期、2体試験</td></tr><tr><td><strong>2</strong></td><td>DONE</td><td>360接触+3対照、全physics gate PASS</td></tr><tr><td><strong>3A</strong></td><td>DONE</td><td>DMBN semantics試験、X→P/P→Xがmeanを改善</td></tr><tr><td><strong>3B</strong></td><td>PARTIAL</td><td>X↔T実行済み、onset改善、X→T MAEはmean未達</td></tr><tr><td><strong>3C</strong></td><td>PARTIAL</td><td>X/XP/XPI/P条件実行、XPI→Tのみ主要改善</td></tr><tr><td><strong>4</strong></td><td>PARTIAL</td><td>readoutとstop機構実装、high予測が閾値未達</td></tr><tr><td><strong>5</strong></td><td>DONE</td><td>A視点のOther観察、Self-CF、対Self参照を保存</td></tr><tr><td><strong>6</strong></td><td>DONE</td><td>Other actual、0/5/20/100%較正を評価</td></tr><tr><td><strong>7</strong></td><td>DONE</td><td>4条件、別出力、shuffle/time-shift対照を評価</td></tr><tr><td><strong>8</strong></td><td>PARTIAL</td><td>政策実行済み、Self-low/Other-high介入gateは失敗</td></tr></tbody></table></div>
+<hr>
+<h2 id="section-56">16. テストと検証</h2>
+<h3 id="section-57">16.1 実行済みテスト</h3>
+<div class="table-wrap"><table><thead><tr><th scope="col">Test group</th><th scope="col">結果</th><th scope="col">時間</th><th scope="col">対象</th></tr></thead><tbody><tr><td><strong>Research tests</strong></td><td>16/16 PASS</td><td>20.124 s</td><td>simulation、dataset、DMBN、split、protection</td></tr><tr><td><strong>Upstream non-GUI tests</strong></td><td>10/10 PASS</td><td>5.286 s</td><td>scene、camera、sensor、IK、controller、multi-robot</td></tr><tr><td><strong>GUI test</strong></td><td>実行環境でABORT</td><td>—</td><td>macOS sandboxのTk/AppKit制約</td></tr></tbody></table></div>
+<p>GUI testの<code>NSInternalInconsistencyException</code>はpassとして数えていない。headless cameraとsimulationは別テストで通過している。</p>
+<h3 id="section-58">16.2 DMBN semantics test</h3>
+<ul class="report-list"><li class="depth-0">任意観測時刻</li><li class="depth-0">過去query、未来query</li><li class="depth-0">X-only→P、P-only→X</li><li class="depth-0">modality availability zero</li><li class="depth-0">複数query timeの独立予測</li><li class="depth-0">set order invariance</li><li class="depth-0">4モダリティshape</li><li class="depth-0">予測値を次時刻入力へ戻さない非自己回帰性</li></ul>
+<hr>
+<h2 id="section-59">17. 成果物</h2>
+<h3 id="section-60">17.1 データセット</h3>
+<div class="table-wrap"><table><thead><tr><th scope="col">Dataset</th><th scope="col">Path</th><th scope="col">Episodes</th><th scope="col">Split</th><th scope="col">Size</th></tr></thead><tbody><tr><td><strong>Self Mini raw</strong></td><td><code>data/raw/self_mini</code></td><td>57</td><td>source</td><td>8.8 MB</td></tr><tr><td><strong>Self Mini processed</strong></td><td><code>data/processed/self_mini</code></td><td>57</td><td>21/18/18</td><td>0.9 MB</td></tr><tr><td><strong>Self Full raw</strong></td><td><code>data/raw/self_full</code></td><td>363</td><td>source</td><td>56.8 MB</td></tr><tr><td><strong>Self Full processed</strong></td><td><code>data/processed/self_full</code></td><td>363</td><td>255/54/54</td><td>5.8 MB</td></tr><tr><td><strong>Dissociation raw</strong></td><td><code>data/raw/dissociation</code></td><td>160</td><td>source</td><td>31 MB</td></tr><tr><td><strong>Dissociation processed</strong></td><td><code>data/processed/dissociation</code></td><td>160</td><td>112/24/24</td><td>3.2 MB</td></tr></tbody></table></div>
+<p>表中のpathは <code>experiments/pain_self_other/</code> からの相対pathである。生成データ、checkpoint、prediction arraysはローカルに保存され、Git管理対象外である。</p>
+<h3 id="section-61">17.2 主要checkpoint</h3>
+<div class="table-wrap"><table><thead><tr><th scope="col">Experiment ID</th><th scope="col">Checkpoint</th><th scope="col">Train / Validation</th><th scope="col">代表結果</th></tr></thead><tbody><tr><td><strong>S3A_DMBN_XP_full</strong></td><td><code>checkpoints/S3A_DMBN_XP_full/best_model.npz</code></td><td>255/54</td><td>X→P 0.000815</td></tr><tr><td><strong>S3B_DMBN_XT_full</strong></td><td><code>checkpoints/S3B_DMBN_XT_full/best_model.npz</code></td><td>255/54</td><td>X→T 2.944523</td></tr><tr><td><strong>S3C_DMBN_XTPI_full</strong></td><td><code>checkpoints/S3C_DMBN_XTPI_full/best_model.npz</code></td><td>255/54</td><td>XPI→T 2.404786</td></tr><tr><td><strong>S5_SELF_CF_rigid/compliant</strong></td><td><code>checkpoints/S5_SELF_CF_*</code></td><td>各28/6</td><td>別Self body予測</td></tr><tr><td>**S6_OTHER_*_005**</td><td><code>checkpoints/S6_OTHER_*_005</code></td><td>各2/6</td><td>realized 7.14%</td></tr><tr><td>**S6_OTHER_*_020**</td><td><code>checkpoints/S6_OTHER_*_020</code></td><td>各6/6</td><td>realized 21.43%</td></tr><tr><td>**S6_OTHER_*_100**</td><td><code>checkpoints/S6_OTHER_*_100</code></td><td>各28/6</td><td>Other専用model</td></tr></tbody></table></div>
+<h3 id="section-62">17.3 図</h3>
+<div class="table-wrap"><table><thead><tr><th scope="col">No.</th><th scope="col">File</th><th scope="col">内容</th><th scope="col">元データ</th></tr></thead><tbody><tr><td><strong>1</strong></td><td><a href="figures/01_study_design.png"><code>01_study_design.png</code></a></td><td>研究設計</td><td>実装仕様</td></tr><tr><td><strong>2</strong></td><td><a href="figures/02_physics_distributions.png"><code>02_physics_distributions.png</code></a></td><td>物理分布</td><td>raw Self metadata</td></tr><tr><td><strong>3</strong></td><td><a href="figures/03_training_history.png"><code>03_training_history.png</code></a></td><td>学習履歴</td><td>checkpoint history JSON</td></tr><tr><td><strong>4</strong></td><td><a href="figures/04_self_model_vs_baseline.png"><code>04_self_model_vs_baseline.png</code></a></td><td>Self model相対MAE</td><td>Stage 3 metrics JSON</td></tr><tr><td><strong>5</strong></td><td><a href="figures/05_other_calibration.png"><code>05_other_calibration.png</code></a></td><td>較正率とMAE</td><td>Stage 6 metrics JSON</td></tr><tr><td><strong>6</strong></td><td><a href="figures/06_dissociation_harm.png"><code>06_dissociation_harm.png</code></a></td><td>4条件H</td><td>Stage 7 metrics JSON</td></tr><tr><td><strong>7</strong></td><td><a href="figures/07_dissociation_controls.png"><code>07_dissociation_controls.png</code></a></td><td>shortcut control</td><td>Stage 7 metrics JSON</td></tr><tr><td><strong>8</strong></td><td><a href="figures/08_self_high_other_low_trajectory.png"><code>08_self_high_other_low_trajectory.png</code></a></td><td>不一致条件2の軌道</td><td>Stage 7 prediction NPZ</td></tr><tr><td><strong>9</strong></td><td><a href="figures/09_self_low_other_high_trajectory.png"><code>09_self_low_other_high_trajectory.png</code></a></td><td>不一致条件3の軌道</td><td>Stage 7 prediction NPZ</td></tr><tr><td><strong>10</strong></td><td><a href="figures/10_protection_result.png"><code>10_protection_result.png</code></a></td><td>保護判定と物理結果</td><td>Stage 7/8 metrics JSON</td></tr></tbody></table></div>
+<p>図は <a href="../report_figures.py"><code>report_figures.py</code></a> で保存済みmetrics/raw metadata/prediction arraysから再生成できる。</p>
+<h3 id="section-63">17.4 シミュレーション動画</h3>
+<p><strong>動画はレンダリング用に作り直した架空映像ではなく、各実験で保存したPyCub左眼RGBと240 Hz物理ログを時刻同期して再生したものである。</strong> 原画像は128×128、30 Hz、2秒間であり、視認性のため最近傍拡大し、各frameを2回表示して0.5倍速の4秒動画にした。</p>
+<div class="table-wrap"><table><thead><tr><th scope="col">No.</th><th scope="col">動画</th><th scope="col">内容</th><th scope="col">解像度 / 長さ</th></tr></thead><tbody><tr><td><strong>1</strong></td><td><a href="videos/01_self_physics_speed.mp4">01_self_physics_speed.mp4</a></td><td>slow/medium/fastのSelf接触を同時比較</td><td>1280×720 / 4.0 s</td></tr><tr><td><strong>2</strong></td><td><a href="videos/02_other_observation_four_conditions.mp4">02_other_observation_four_conditions.mp4</a></td><td>4つのSelf/Other条件をAの視点で比較</td><td>1280×720 / 4.0 s</td></tr><tr><td><strong>3</strong></td><td><a href="videos/03_self_other_mismatch_pairs.mp4">03_self_other_mismatch_pairs.mp4</a></td><td>主要不一致2条件のSelf参照とOther actual</td><td>1280×720 / 4.0 s</td></tr><tr><td><strong>4</strong></td><td><a href="videos/04_protection_decision_replay.mp4">04_protection_decision_replay.mp4</a></td><td>predicted Other H、閾値、Stage 8判断失敗</td><td>1280×720 / 4.0 s</td></tr></tbody></table></div>
+<p>全動画にはsimulation time、phase、身体条件、接触力、力積、ピークトルク、累積負荷、接触力履歴を同期表示した。動画3は同じevent seedに対するSelfとOtherの物理差を直接示す。動画4は高Otherでも <code>0.6850 &lt; 0.7500</code> となり、<code>NO INTERVENTION</code> が選ばれた負の結果を保存している。使用エピソードとframe数は <a href="videos/manifest.json"><code>videos/manifest.json</code></a> に記録した。</p>
+<hr>
+<h2 id="section-64">18. 再現手順</h2>
+<h3 id="section-65">18.1 環境とテスト</h3>
+<pre><code class="language-bash">export MPLCONFIGDIR=/tmp/dmbnv3-mpl
+PY=/opt/miniconda3/envs/pycub310/bin/python
+
+$PY -m unittest -v tests.test_pain_self_other
+$PY -m unittest -v tests.test_pycubsim2.ConfigTests tests.test_pycubsim2.SimulationTests</code></pre>
+<h3 id="section-66">18.2 Selfデータ生成・前処理・物理評価</h3>
+<pre><code class="language-bash">$PY -m experiments.pain_self_other.run generate \
+  --design self --repetitions 20 \
+  --output experiments/pain_self_other/data/raw/self_full \
+  --seed 20261000
+
+$PY -m experiments.pain_self_other.run prepare \
+  --raw experiments/pain_self_other/data/raw/self_full \
+  --processed experiments/pain_self_other/data/processed/self_full \
+  --manifest experiments/pain_self_other/data/manifests/self_full.csv \
+  --normalization experiments/pain_self_other/data/manifests/self_full_normalization.json \
+  --seed 20261000
+
+$PY -m experiments.pain_self_other.run physics-report \
+  --raw experiments/pain_self_other/data/raw/self_full \
+  --output experiments/pain_self_other/reports/STAGE2_PHYSICS_VALIDATION_FULL.md</code></pre>
+<h3 id="section-67">18.3 Stage 3A–3C学習</h3>
+<pre><code class="language-bash">$PY -m experiments.pain_self_other.run train \
+  --manifest experiments/pain_self_other/data/manifests/self_full.csv \
+  --normalization experiments/pain_self_other/data/manifests/self_full_normalization.json \
+  --modalities XP --role self \
+  --output experiments/pain_self_other/checkpoints/S3A_DMBN_XP_full \
+  --steps 20000 --validate-every 200 --patience 20 --seed 20260903
+
+$PY -m experiments.pain_self_other.run train \
+  --manifest experiments/pain_self_other/data/manifests/self_full.csv \
+  --normalization experiments/pain_self_other/data/manifests/self_full_normalization.json \
+  --modalities XT --role self \
+  --output experiments/pain_self_other/checkpoints/S3B_DMBN_XT_full \
+  --steps 30000 --validate-every 200 --patience 20 --seed 20260904
+
+$PY -m experiments.pain_self_other.run train \
+  --manifest experiments/pain_self_other/data/manifests/self_full.csv \
+  --normalization experiments/pain_self_other/data/manifests/self_full_normalization.json \
+  --modalities XTPI --role self \
+  --output experiments/pain_self_other/checkpoints/S3C_DMBN_XTPI_full \
+  --steps 40000 --validate-every 200 --patience 20 --seed 20260905</code></pre>
+<h3 id="section-68">18.4 Dissociationデータと中心評価</h3>
+<pre><code class="language-bash">$PY -m experiments.pain_self_other.run generate \
+  --design dissociation --repetitions 20 \
+  --output experiments/pain_self_other/data/raw/dissociation \
+  --seed 20262000 --no-controls
+
+$PY -m experiments.pain_self_other.run prepare \
+  --raw experiments/pain_self_other/data/raw/dissociation \
+  --processed experiments/pain_self_other/data/processed/dissociation \
+  --manifest experiments/pain_self_other/data/manifests/dissociation.csv \
+  --normalization experiments/pain_self_other/data/manifests/dissociation_normalization.json \
+  --seed 20262000
+
+$PY -m experiments.pain_self_other.run dissociation-report \
+  --manifest experiments/pain_self_other/data/manifests/dissociation.csv \
+  --normalization experiments/pain_self_other/data/manifests/dissociation_normalization.json \
+  --self-rigid-model experiments/pain_self_other/checkpoints/S5_SELF_CF_rigid/best_model.npz \
+  --self-compliant-model experiments/pain_self_other/checkpoints/S5_SELF_CF_compliant/best_model.npz \
+  --other-rigid-model experiments/pain_self_other/checkpoints/S6_OTHER_rigid_100/best_model.npz \
+  --other-compliant-model experiments/pain_self_other/checkpoints/S6_OTHER_compliant_100/best_model.npz \
+  --output experiments/pain_self_other/outputs/S7_DISSOCIATION_full</code></pre>
+<p>body/fraction別の全学習コマンドとStage 8コマンドは <a href="../../../docs/PAIN_SELF_OTHER_HANDOFF.md"><code>docs/PAIN_SELF_OTHER_HANDOFF.md</code></a> を正本とする。</p>
+<h3 id="section-69">18.5 本報告書の図を再生成</h3>
+<pre><code class="language-bash">$PY -m experiments.pain_self_other.report_figures</code></pre>
+<p>スクリプトは10個のPNGが存在することを<code>assert</code>し、欠損時に非ゼロ終了する。</p>
+<h3 id="section-70">18.6 シミュレーション動画を再生成</h3>
+<pre><code class="language-bash">$PY -m experiments.pain_self_other.render_videos</code></pre>
+<p>動画生成は既存のOpenCV <code>mp4v</code> encoderを使用し、新しい依存を追加しない。各MP4を再度開いてframe数と先頭frameを検査し、不完全な動画では非ゼロ終了する。</p>
+<hr>
+<h2 id="section-71">19. 限界と主張可能範囲</h2>
+<h3 id="section-72">19.1 限界</h3>
+<ul class="report-list"><li class="depth-0"><strong>画像表現力</strong>: 原DMBNのCNNではなく<code>16×16</code> MLPであり、触覚・内部状態の振幅推定が弱い。</li><li class="depth-0"><strong>時間利用</strong>: 観測／query APIは正しいが、time-shift controlが効かず、実データでは画像内容に強く依存した可能性がある。</li><li class="depth-0"><strong>Other文脈</strong>: rigid/compliant別model選択は明示的なbody contextであり、未観測の身体特性を視覚だけから推定した結果ではない。</li><li class="depth-0"><strong>標本数</strong>: Dissociation testは24エピソードで、各条件のtest seed数は小さい。</li><li class="depth-0"><strong>環境範囲</strong>: deterministic simulation、単一プローブ、単一上肢、2秒軌道に限定される。</li><li class="depth-0"><strong>行動校正</strong>: continuous orderingは正しいがhigh amplitudeが低く、固定閾値のrobust calibrationが不足する。</li></ul>
+<h3 id="section-73">19.2 現時点で主張できること</h3>
+<ul class="report-list"><li class="depth-0">PyBullet実測X/T/P/Iを用いた<strong>multimodal bodily-consequence prediction</strong></li><li class="depth-0">Other観察からの<strong>Self-based counterfactual simulation</strong></li><li class="depth-0">身体条件が異なる場合の<strong>Self/Other continuous-state dissociation</strong></li><li class="depth-0">body contextに依存した<strong>Other-state prediction</strong></li><li class="depth-0">subjective empathyではなく<strong>empathy-like computational precursor</strong>としての限定的結果</li></ul>
+<h3 id="section-74">19.3 主張できないこと</h3>
+<ul class="report-list"><li class="depth-0">ロボットが主観的に痛みを感じたこと</li><li class="depth-0">生物学的なmirror neuronまたは共感の実証</li><li class="depth-0">人間のinteroception</li><li class="depth-0">consciousness、moral agency、altruism</li><li class="depth-0">現実ロボットや人間への一般化</li></ul>
+<hr>
+<h2 id="section-75">20. 結論と次の技術的優先事項</h2>
+<p><strong>中心科学命題のうち、「Self-CFとOther actualを分ける」部分は連続軌道とharm readoutの双方で支持された。</strong> Self投影よりOther専用予測が良く、body contextをshuffleすると悪化したため、Other身体情報が予測に寄与した。ただし、X-onlyのT/I振幅、較正量の単調効果、画像時刻への依存、固定閾値でのOther保護は支持されなかった。</p>
+<p><strong>最優先の次工程は、Stage 7のtest splitと閾値を固定したまま、training/validationだけで高力状態のT/I振幅calibrationを改善することである。</strong> 具体的には、原DMBNに近い画像CNNへ置換し、validation上のpeak-force/impulse calibration lossを追加したうえで、既存のSelf低／Other高testを一度だけ再評価する。この手順なら、負の結果を消すpost-hoc閾値変更を避けながら、Stage 8失敗の直接原因を検証できる。</p><section class="video-section" id="video-players"><h2>シミュレーション動画プレイヤー</h2><p>保存済みのPyCub左眼RGBと物理ログを同期した実験replayである。元の2秒を0.5倍速の4秒で表示する。</p><div class="video-grid"><article class="video-card"><div class="video-heading"><div><h3>Self物理条件</h3><p>slow・medium・fastを同じ姿勢と接触部位で比較</p></div><span>4.0 s / 1280×720</span></div><video controls preload="metadata"><source src="videos/01_self_physics_speed.mp4" type="video/mp4"><a href="videos/01_self_physics_speed.mp4">01_self_physics_speed.mp4</a></video><p class="file-ref"><strong>動画ファイル名:</strong> <a href="videos/01_self_physics_speed.mp4">01_self_physics_speed.mp4</a> <span>／同期元 3エピソード</span></p></article><article class="video-card"><div class="video-heading"><div><h3>Other観察4条件</h3><p>matched条件と二つの主要不一致条件を同時表示</p></div><span>4.0 s / 1280×720</span></div><video controls preload="metadata"><source src="videos/02_other_observation_four_conditions.mp4" type="video/mp4"><a href="videos/02_other_observation_four_conditions.mp4">02_other_observation_four_conditions.mp4</a></video><p class="file-ref"><strong>動画ファイル名:</strong> <a href="videos/02_other_observation_four_conditions.mp4">02_other_observation_four_conditions.mp4</a> <span>／同期元 4エピソード</span></p></article><article class="video-card"><div class="video-heading"><div><h3>Self/Other不一致ペア</h3><p>同じevent seedに対するSelf参照とOther actual</p></div><span>4.0 s / 1280×720</span></div><video controls preload="metadata"><source src="videos/03_self_other_mismatch_pairs.mp4" type="video/mp4"><a href="videos/03_self_other_mismatch_pairs.mp4">03_self_other_mismatch_pairs.mp4</a></video><p class="file-ref"><strong>動画ファイル名:</strong> <a href="videos/03_self_other_mismatch_pairs.mp4">03_self_other_mismatch_pairs.mp4</a> <span>／同期元 4エピソード</span></p></article><article class="video-card"><div class="video-heading"><div><h3>Stage 8保護判断</h3><p>高Otherを過小評価して非介入となった負の結果</p></div><span>4.0 s / 1280×720</span></div><video controls preload="metadata"><source src="videos/04_protection_decision_replay.mp4" type="video/mp4"><a href="videos/04_protection_decision_replay.mp4">04_protection_decision_replay.mp4</a></video><p class="file-ref"><strong>動画ファイル名:</strong> <a href="videos/04_protection_decision_replay.mp4">04_protection_decision_replay.mp4</a> <span>／同期元 2エピソード</span></p></article></div></section><a class="top-link" href="#top">ページ先頭へ戻る ↑</a></main>
+</div>
+<footer class="footer">本ページは <code>DETAILED_EXPERIMENT_REPORT.md</code> から生成したローカル研究成果物である。主観的痛み、生物学的共感、意識を主張しない。</footer>
+</body>
+</html>

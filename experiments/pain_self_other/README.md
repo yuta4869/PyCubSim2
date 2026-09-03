@@ -2,6 +2,8 @@
 
 **実験条件、全主要数値、成功・負の結果、10点の図をまとめた日本語報告書**: [`reports/DETAILED_EXPERIMENT_REPORT.md`](reports/DETAILED_EXPERIMENT_REPORT.md)
 
+**図・表・動画プレイヤーを統合したHTML報告書**: [`reports/DETAILED_EXPERIMENT_REPORT.html`](reports/DETAILED_EXPERIMENT_REPORT.html)
+
 **同期シミュレーション動画**: [`reports/videos`](reports/videos) — Self速度比較、4条件Other観察、主要不一致ペア、Stage 8判断replayの4本。
 
 > We investigate whether multimodal bodily experience learned through
