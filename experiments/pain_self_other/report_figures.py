@@ -7,6 +7,7 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.font_manager import FontProperties
 from matplotlib.patches import FancyArrowPatch, FancyBboxPatch
 
 HERE = Path(__file__).resolve().parent
@@ -24,6 +25,13 @@ COLORS = {
     "gray": "#666666",
     "light": "#E6E6E6",
 }
+
+JP_FONT_PATH = next(
+    (path for path in (Path("/System/Library/Fonts/Hiragino Sans GB.ttc"), Path("/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc")) if path.exists()),
+    None,
+)
+JP_FONT = FontProperties(fname=str(JP_FONT_PATH)) if JP_FONT_PATH else FontProperties(family="sans-serif")
+JP_BOLD = FontProperties(fname=str(JP_FONT_PATH), weight="bold") if JP_FONT_PATH else FontProperties(family="sans-serif", weight="bold")
 
 
 def load_json(path: Path) -> dict:
@@ -84,6 +92,73 @@ def study_design() -> None:
     )
     axis.set_title("Physical Self-to-Other DMBN study design", fontsize=15, weight="bold", pad=8)
     save(figure, "01_study_design.png")
+
+
+def study_design_ja() -> None:
+    figure, axis = plt.subplots(figsize=(16, 9))
+    axis.set_xlim(0, 16)
+    axis.set_ylim(0, 9)
+    axis.axis("off")
+
+    def box(
+        x: float,
+        y: float,
+        width: float,
+        height: float,
+        title: str,
+        body: str,
+        color: str,
+        dashed: bool = False,
+        body_fraction: float = 0.43,
+        body_size: float = 11.5,
+    ) -> None:
+        axis.add_patch(
+            FancyBboxPatch(
+                (x, y),
+                width,
+                height,
+                boxstyle="round,pad=0.08,rounding_size=0.10",
+                linewidth=2.2,
+                linestyle="--" if dashed else "-",
+                edgecolor=color,
+                facecolor="white",
+            )
+        )
+        axis.text(x + 0.18, y + height - 0.28, title, ha="left", va="top", fontsize=14, color=color, fontproperties=JP_BOLD)
+        axis.text(x + width / 2, y + height * body_fraction, body, ha="center", va="center", fontsize=body_size, color="#25323b", fontproperties=JP_FONT, linespacing=1.45)
+
+    def arrow(start: tuple[float, float], end: tuple[float, float], color: str = "#52616b") -> None:
+        axis.add_patch(FancyArrowPatch(start, end, arrowstyle="-|>", mutation_scale=16, color=color, linewidth=2.0, connectionstyle="arc3,rad=0"))
+
+    axis.text(8, 8.55, "Self経験からOther状態推定・保護まで", ha="center", va="center", fontsize=23, color="#123047", fontproperties=JP_BOLD)
+    axis.text(8, 8.14, "Self反実仮想とOther実状態予測を混ぜず、それぞれ対応する実測値で評価する", ha="center", va="center", fontsize=12.5, color="#52616b", fontproperties=JP_FONT)
+
+    box(0.35, 6.15, 3.45, 1.55, "① Self実経験", "ロボットAが接触を受ける\nX：視覚　T：触覚\nP：固有受容　I：内部機械状態", COLORS["blue"])
+    box(4.25, 6.15, 3.45, 1.55, "② Self身体モデル", "DMBNで時間関係を学習\n観測集合 ＋ 独立した時刻query\n予測を次時刻へ再入力しない", COLORS["blue"])
+    box(8.15, 6.15, 3.8, 1.55, "③ Otherを観察", "Aの左眼でBへの接触を見る\nモデルへの主要入力：X_other\n同じ外的イベントを観測", COLORS["orange"])
+    arrow((3.8, 6.93), (4.25, 6.93), COLORS["blue"])
+    arrow((7.7, 6.93), (8.15, 6.93), COLORS["blue"])
+
+    box(2.0, 3.55, 5.35, 1.75, "④-A Self反実仮想", "「同じ出来事がAに起きたら？」\n予測：T/P/I_self_cf\nA自身の身体モデルで内部シミュレーション", COLORS["orange"])
+    box(8.65, 3.55, 5.35, 1.75, "④-B Other実状態予測", "「Bには実際に何が起きる？」\nX_other ＋ Bの身体情報／較正\n予測：T/P/I_other_hat", COLORS["green"])
+    arrow((9.65, 6.15), (5.8, 5.3), COLORS["orange"])
+    arrow((10.3, 6.15), (11.25, 5.3), COLORS["green"])
+
+    box(2.0, 2.35, 5.35, 0.80, "評価用Self actual", "同一probe軌道でAを刺激した実測 T/P/I", "#66717a", dashed=True, body_fraction=0.18, body_size=10.5)
+    box(8.65, 2.35, 5.35, 0.80, "評価用Other actual", "Bの実センサで測定した T/P/I", "#66717a", dashed=True, body_fraction=0.18, body_size=10.5)
+    arrow((4.68, 3.55), (4.68, 3.15), "#66717a")
+    arrow((11.32, 3.55), (11.32, 3.15), "#66717a")
+
+    box(0.35, 0.55, 3.55, 1.25, "中心的な反証条件", "Self高／Other低\nSelf低／Other高", COLORS["red"])
+    box(4.65, 0.55, 6.05, 1.25, "⑤ Self/Other解離を評価", "H_self_cf と H_other を別々に算出\nΔforce・Δload・軌道差を比較", COLORS["purple"])
+    box(11.45, 0.55, 4.2, 1.25, "⑥ Other保護", "予測H_other ≥ 閾値 → probe停止\n低ければ介入しない", COLORS["red"])
+    arrow((3.9, 1.18), (4.65, 1.18), COLORS["red"])
+    arrow((7.35, 2.35), (7.35, 1.8), COLORS["purple"])
+    arrow((8.65, 2.35), (8.15, 1.8), COLORS["purple"])
+    arrow((10.7, 1.18), (11.45, 1.18), COLORS["red"])
+
+    axis.text(15.65, 8.15, "実線：予測経路\n破線枠：評価用の実測値", ha="right", va="top", fontsize=9.5, color="#66717a", fontproperties=JP_FONT, linespacing=1.45)
+    save(figure, "01_study_design_ja.png")
 
 
 def physics_distributions() -> None:
@@ -318,6 +393,7 @@ def protection_result() -> None:
 
 def main() -> None:
     study_design()
+    study_design_ja()
     physics_distributions()
     training_history()
     self_model_comparison()
@@ -327,8 +403,21 @@ def main() -> None:
     mismatch_trajectory("self_high_other_low", "08_self_high_other_low_trajectory.png")
     mismatch_trajectory("self_low_other_high", "09_self_low_other_high_trajectory.png")
     protection_result()
-    expected = {f"{index:02d}_" for index in range(1, 11)}
-    produced = {path.name[:3] for path in FIGURES.glob("*.png")}
+    expected = {"01_study_design.png", "01_study_design_ja.png"} | {
+        f"{index:02d}_{name}.png"
+        for index, name in (
+            (2, "physics_distributions"),
+            (3, "training_history"),
+            (4, "self_model_vs_baseline"),
+            (5, "other_calibration"),
+            (6, "dissociation_harm"),
+            (7, "dissociation_controls"),
+            (8, "self_high_other_low_trajectory"),
+            (9, "self_low_other_high_trajectory"),
+            (10, "protection_result"),
+        )
+    }
+    produced = {path.name for path in FIGURES.glob("*.png")}
     assert expected <= produced, f"Missing figures: {expected - produced}"
     print(f"generated {len(list(FIGURES.glob('*.png')))} report figures in {FIGURES}")
 

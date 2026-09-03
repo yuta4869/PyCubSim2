@@ -59,9 +59,9 @@
 
 ### 2.3 研究全体の流れ
 
-![Self経験からOther状態推定までの研究設計](figures/01_study_design.png)
+![Self経験からOther状態推定までの日本語研究設計](figures/01_study_design_ja.png)
 
-> **図1 — Self経験からOther状態推定までの研究設計** — **画像ファイル名:** [`01_study_design.png`](figures/01_study_design.png)
+> **図1 — Self経験からOther状態推定までの日本語研究設計** — **画像ファイル名:** [`01_study_design_ja.png`](figures/01_study_design_ja.png)
 
 図1は、Otherを観察した後もSelf-CFとOther予測を別の出力として保持する設計を示す。Other actualセンサは評価時の物理的正解であり、Self-CFの正解と置換しない。
 
@@ -566,7 +566,7 @@ GUI testの`NSInternalInconsistencyException`はpassとして数えていない�
 
 | No. | File | 内容 | 元データ |
 |---:|---|---|---|
-| **1** | [`01_study_design.png`](figures/01_study_design.png) | 研究設計 | 実装仕様 |
+| **1** | [`01_study_design_ja.png`](figures/01_study_design_ja.png) | 日本語による研究設計 | 実装仕様 |
 | **2** | [`02_physics_distributions.png`](figures/02_physics_distributions.png) | 物理分布 | raw Self metadata |
 | **3** | [`03_training_history.png`](figures/03_training_history.png) | 学習履歴 | checkpoint history JSON |
 | **4** | [`04_self_model_vs_baseline.png`](figures/04_self_model_vs_baseline.png) | Self model相対MAE | Stage 3 metrics JSON |
