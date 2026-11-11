@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import os
 import tempfile
 import xml.etree.ElementTree as ET
 from pathlib import Path
@@ -16,8 +17,13 @@ def prepared_icub_urdf(source: str | Path) -> Path:
     digest_builder.update(b"\0")
     digest_builder.update(source_path.read_bytes())
     digest = digest_builder.hexdigest()[:12]
-    cache_dir = Path(tempfile.gettempdir()) / "pycubsim2"
-    cache_dir.mkdir(parents=True, exist_ok=True)
+    cache_name = (
+        f"pycubsim2-{os.getuid()}"
+        if hasattr(os, "getuid")
+        else "pycubsim2"
+    )
+    cache_dir = Path(tempfile.gettempdir()) / cache_name
+    cache_dir.mkdir(mode=0o700, parents=True, exist_ok=True)
     destination = cache_dir / f"{source_path.stem}_prepared_{digest}.urdf"
     if destination.exists():
         return destination

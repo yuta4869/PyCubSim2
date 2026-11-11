@@ -1439,7 +1439,7 @@ class PyCubSim2Simulation:
             self.elapsed_s += 1.0 / self.config.physics_hz
 
     def camera_sources(self) -> list[tuple[str, str]]:
-        sources = [("world", "World camera"), ("webcam:0", "Mac webcam 0")]
+        sources = [("world", "World camera"), ("webcam:0", "Webcam 0")]
         for runtime in self.entities.values():
             entity_id = runtime.spec.entity_id
             name = runtime.spec.name

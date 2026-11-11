@@ -9,6 +9,31 @@ from pathlib import Path
 APP_ICON_PATH = (
     Path(__file__).resolve().parents[1] / "assets" / "PyCubSim2-app-icon.png"
 )
+WINDOWS_APP_USER_MODEL_ID = "local.yuta.pycubsim2"
+
+
+def prepare_application_process() -> None:
+    if sys.platform != "win32":
+        return
+    try:
+        set_app_id = (
+            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID
+        )
+        set_app_id.argtypes = (ctypes.c_wchar_p,)
+        set_app_id.restype = ctypes.c_long
+        set_app_id(WINDOWS_APP_USER_MODEL_ID)
+    except Exception:
+        pass
+    try:
+        per_monitor_v2 = ctypes.c_void_p(-4)
+        if ctypes.windll.user32.SetProcessDpiAwarenessContext(per_monitor_v2):
+            return
+    except Exception:
+        pass
+    try:
+        ctypes.windll.shcore.SetProcessDpiAwareness(2)
+    except Exception:
+        pass
 
 
 def configure_application_icon(

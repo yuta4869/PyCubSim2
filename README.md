@@ -95,6 +95,113 @@ When an unpinned app quits, macOS removes its icon from the Dock. To keep
 PyCubSim2 there, open it once, Control-click its Dock icon, then select
 `Options` > `Keep in Dock`.
 
+## Ubuntu Packages
+
+Ubuntu receives three native x86-64 outputs:
+
+- `PyCubSim2-1.2-x86_64.AppImage`: portable single-file application.
+- `pycubsim2_1.2_amd64.deb`: application-menu integration and
+  `/usr/bin/pycubsim2`.
+- `PyCubSim2-1.2-ubuntu-x86_64.tar.gz`: portable extracted directory.
+
+The target is Ubuntu 22.04 or newer. The deb and portable directory also
+include `pycubsim2-cli` for headless or automated runs. To use the AppImage:
+
+```bash
+chmod +x PyCubSim2-1.2-x86_64.AppImage
+./PyCubSim2-1.2-x86_64.AppImage
+```
+
+If FUSE is unavailable, run it with
+`APPIMAGE_EXTRACT_AND_RUN=1 ./PyCubSim2-1.2-x86_64.AppImage`. For native
+desktop integration:
+
+```bash
+sudo apt install ./pycubsim2_1.2_amd64.deb
+pycubsim2
+```
+
+The portable directory can be used without installation:
+
+```bash
+tar -xzf PyCubSim2-1.2-ubuntu-x86_64.tar.gz
+./PyCubSim2-1.2-ubuntu-x86_64/PyCubSim2
+```
+
+Build all Ubuntu formats on an Ubuntu host with:
+
+```bash
+sudo apt install \
+  appstream build-essential curl desktop-file-utils file \
+  libfontconfig1 libgl1 libglib2.0-0 libsm6 libx11-6 libxcb1 \
+  libxext6 libxfixes3 libxi6 libxrandr2 libxrender1 libxss1 \
+  python3-dev python3-tk python3-venv
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt -r requirements-build.txt
+./tools/build_ubuntu_packages.sh
+```
+
+The build performs standalone, AppImage, and extracted-deb headless smoke
+tests and writes SHA-256 checksums beside the packages.
+
+An Ubuntu 22.04 build can also be reproduced from macOS or Linux with Docker:
+
+```bash
+docker build --platform linux/amd64 \
+  -f packaging/linux/Dockerfile.build \
+  -t pycubsim2-ubuntu-build .
+docker run --rm --platform linux/amd64 \
+  -e HOME=/tmp \
+  -e PYINSTALLER_CONFIG_DIR=/tmp/pyinstaller \
+  -v "$PWD:/workspace" \
+  -w /workspace \
+  pycubsim2-ubuntu-build \
+  ./tools/build_ubuntu_packages.sh
+```
+
+## Windows Packages
+
+Windows receives two x64 outputs:
+
+- `PyCubSim2-1.2-windows-x64-setup.exe`: per-user installer with English and
+  Japanese UI, Start-menu entry, optional desktop shortcut, and uninstaller.
+- `PyCubSim2-1.2-windows-x64.zip`: portable version that needs no installer.
+
+The installer does not require administrator privileges. The target is
+64-bit Windows 10 or Windows 11. Both packages include `PyCubSim2.exe` for the
+high-DPI GUI and `PyCubSim2-cli.exe` for headless or automated runs.
+Run the installer normally, or extract the portable ZIP and double-click
+`PyCubSim2.exe`.
+
+Build both formats on Windows with 64-bit Python 3.10 and Inno Setup 6 or 7:
+
+```powershell
+py -3.10 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt -r requirements-build.txt
+.\tools\build_windows.ps1
+```
+
+Pass `-TestInstaller` to install into a temporary location, launch the
+installed application headlessly, and uninstall it as part of the build.
+Set `SIGNTOOL_PATH` and `WINDOWS_CERT_SHA1` to Authenticode-sign the
+application executable and installer.
+
+## Native Package Builds
+
+PyInstaller must build separately on each operating system. The
+`Build platform packages` GitHub Actions workflow therefore runs on native
+macOS Apple Silicon, Ubuntu 22.04 x64, and Windows x64 runners. It can be
+started manually from the Actions tab and also runs for version tags. Each job
+runs the tests, builds the OS-native packages, performs package smoke tests,
+and uploads the results as workflow artifacts.
+
+Local packages are unsigned except for the ad-hoc macOS signature. Production
+distribution should use Apple Developer ID, Windows Authenticode, and the
+appropriate release-signing process.
+
+
 ## Main Features
 
 - Integrated scene editor for PyCubs, tables, primitives, and imported models
@@ -302,6 +409,111 @@ cat /tmp/pycubsim2.log
 ```
 
 リポジトリ内の`PyCubSim2.app`には外部Conda環境が必要です。
+
+## Ubuntuパッケージ
+
+Ubuntu向けには、x86-64用の3形式を生成します。
+
+- `PyCubSim2-1.2-x86_64.AppImage`: 1ファイルで持ち運べるアプリ
+- `pycubsim2_1.2_amd64.deb`: アプリケーションメニューと
+  `/usr/bin/pycubsim2`へ統合するパッケージ
+- `PyCubSim2-1.2-ubuntu-x86_64.tar.gz`: 展開して使うportable版
+
+対象はUbuntu 22.04以降です。debとportable directoryにはheadless実行や
+自動実験用の`pycubsim2-cli`も含まれます。AppImageの起動方法:
+
+```bash
+chmod +x PyCubSim2-1.2-x86_64.AppImage
+./PyCubSim2-1.2-x86_64.AppImage
+```
+
+FUSEが使えない環境では
+`APPIMAGE_EXTRACT_AND_RUN=1 ./PyCubSim2-1.2-x86_64.AppImage`で起動できます。
+Ubuntuへ通常のアプリとして統合する場合:
+
+```bash
+sudo apt install ./pycubsim2_1.2_amd64.deb
+pycubsim2
+```
+
+portable directoryはインストールせずに起動できます。
+
+```bash
+tar -xzf PyCubSim2-1.2-ubuntu-x86_64.tar.gz
+./PyCubSim2-1.2-ubuntu-x86_64/PyCubSim2
+```
+
+Ubuntu上で全形式を作成する場合:
+
+```bash
+sudo apt install \
+  appstream build-essential curl desktop-file-utils file \
+  libfontconfig1 libgl1 libglib2.0-0 libsm6 libx11-6 libxcb1 \
+  libxext6 libxfixes3 libxi6 libxrandr2 libxrender1 libxss1 \
+  python3-dev python3-tk python3-venv
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt -r requirements-build.txt
+./tools/build_ubuntu_packages.sh
+```
+
+ビルド中にstandalone版、AppImage版、deb展開後のheadless起動を検証し、
+各生成物のSHA-256 checksumも出力します。
+
+macOSまたはLinuxからUbuntu 22.04向けビルドを再現する場合はDockerも使えます。
+
+```bash
+docker build --platform linux/amd64 \
+  -f packaging/linux/Dockerfile.build \
+  -t pycubsim2-ubuntu-build .
+docker run --rm --platform linux/amd64 \
+  -e HOME=/tmp \
+  -e PYINSTALLER_CONFIG_DIR=/tmp/pyinstaller \
+  -v "$PWD:/workspace" \
+  -w /workspace \
+  pycubsim2-ubuntu-build \
+  ./tools/build_ubuntu_packages.sh
+```
+
+## Windowsパッケージ
+
+Windows向けには、x64用の2形式を生成します。
+
+- `PyCubSim2-1.2-windows-x64-setup.exe`: 日英表示、Startメニュー、
+  任意のデスクトップショートカット、アンインストーラーを備えたユーザー単位installer
+- `PyCubSim2-1.2-windows-x64.zip`: インストール不要のportable版
+
+installerは管理者権限を必要としません。対象は64 bit版Windows 10／11です。
+両形式にhigh-DPI対応GUI用`PyCubSim2.exe`とheadless／自動実験用
+`PyCubSim2-cli.exe`を同梱します。
+installerは通常どおり起動します。portable ZIPは展開して
+`PyCubSim2.exe`をdouble-clickすると起動できます。
+
+64 bit版Python 3.10とInno Setup 6または7を入れたWindows上で作成します。
+
+```powershell
+py -3.10 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt -r requirements-build.txt
+.\tools\build_windows.ps1
+```
+
+`-TestInstaller`を付けると、一時ディレクトリへのinstall、インストール済み
+アプリのheadless起動、uninstallまでビルド中に検証します。
+`SIGNTOOL_PATH`と`WINDOWS_CERT_SHA1`を設定すると、アプリ本体とinstallerを
+Authenticode署名します。
+
+## OS別ネイティブビルド
+
+PyInstallerでは対象OSごとのビルドが必要です。そのため
+`Build platform packages` GitHub Actions workflowは、macOS Apple Silicon、
+Ubuntu 22.04 x64、Windows x64の各ネイティブrunnerを使用します。
+Actionsタブから手動実行でき、version tagでも開始します。各jobはテスト、
+OS向けパッケージ生成、起動検証を行い、結果をworkflow artifactとして保存します。
+
+ローカル生成物はmacOSのad-hoc署名を除いて未署名です。正式配布時は
+Apple Developer ID、Windows Authenticode、および配布先に応じた署名工程を使用します。
+
 
 ## 主な機能
 

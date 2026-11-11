@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.yuta4869.PyCubSim2</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>CC-BY-4.0</project_license>
+  <name>PyCubSim2</name>
+  <summary>Extensible PyBullet simulation environment for PyCub</summary>
+  <description>
+    <p>
+      PyCubSim2 provides an integrated scene editor, multiple PyCub robots,
+      configurable behaviors, RGB-D sensors, webcam input, and external agent
+      bundles.
+    </p>
+  </description>
+  <launchable type="desktop-id">io.github.yuta4869.PyCubSim2.desktop</launchable>
+  <provides>
+    <binary>pycubsim2</binary>
+    <binary>pycubsim2-cli</binary>
+  </provides>
+  <url type="homepage">https://github.com/yuta4869/PyCubSim2</url>
+  <url type="bugtracker">https://github.com/yuta4869/PyCubSim2/issues</url>
+  <developer_name>yuta4869</developer_name>
+  <content_rating type="oars-1.1"/>
+  <releases>
+    <release version="@VERSION@" date="2026-07-28"/>
+  </releases>
+</component>

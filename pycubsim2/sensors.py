@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import math
+import sys
 from dataclasses import dataclass
 
 import numpy as np
@@ -90,9 +91,7 @@ class WebcamCapture:
         capture.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
         if not capture.isOpened():
             capture.release()
-            self.error = (
-                f"Could not open webcam {index}. Check macOS camera permission."
-            )
+            self.error = f"Could not open webcam {index}. {webcam_access_hint()}"
             raise RuntimeError(self.error)
         self._capture = capture
         self.index = int(index)
@@ -118,3 +117,11 @@ class WebcamCapture:
             self._capture.release()
         self._capture = None
         self.index = -1
+
+
+def webcam_access_hint() -> str:
+    if sys.platform == "darwin":
+        return "Check macOS camera permission."
+    if sys.platform == "win32":
+        return "Check Windows camera privacy settings."
+    return "Check camera access and /dev/video permissions."

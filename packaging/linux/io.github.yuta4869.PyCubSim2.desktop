@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=PyCubSim2
+GenericName=Robot Simulator
+Comment=Extensible PyBullet simulation environment for PyCub
+Exec=pycubsim2
+Icon=pycubsim2
+Terminal=false
+Categories=Science;
+Keywords=robotics;simulation;PyBullet;iCub;
+StartupNotify=true
