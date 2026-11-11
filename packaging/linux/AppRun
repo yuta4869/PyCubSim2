@@ -1,0 +1,18 @@
+#!/bin/sh
+set -eu
+
+if [ -n "${APPDIR:-}" ]; then
+    APP_ROOT="$APPDIR"
+else
+    APP_ROOT="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
+fi
+
+for argument in "$@"; do
+    case "$argument" in
+        --headless|--help|-h)
+            exec "$APP_ROOT/usr/lib/pycubsim2/PyCubSim2-cli" "$@"
+            ;;
+    esac
+done
+
+exec "$APP_ROOT/usr/lib/pycubsim2/PyCubSim2" "$@"

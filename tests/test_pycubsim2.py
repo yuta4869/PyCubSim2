@@ -3,6 +3,7 @@ from __future__ import annotations
 import copy
 import json
 import math
+import os
 import sys
 import tempfile
 import tkinter as tk
@@ -17,7 +18,7 @@ from pycubsim2.actions import KeyframeAction
 from pycubsim2.config import SceneConfig, Transform, default_scene
 from pycubsim2.model import prepared_icub_urdf
 from pycubsim2.plugins import AgentManifest
-from pycubsim2.sensors import depth_colormap
+from pycubsim2.sensors import depth_colormap, webcam_access_hint
 from pycubsim2.simulation import PROJECT_ROOT, PyCubSim2Simulation
 
 
@@ -70,6 +71,11 @@ class ConfigTests(unittest.TestCase):
             prepared_b = prepared_icub_urdf(source_b)
 
             self.assertNotEqual(prepared_a, prepared_b)
+            if hasattr(os, "getuid"):
+                self.assertEqual(
+                    prepared_a.parent.name,
+                    f"pycubsim2-{os.getuid()}",
+                )
             mesh_a = ET.parse(prepared_a).find(".//mesh")
             mesh_b = ET.parse(prepared_b).find(".//mesh")
             self.assertIsNotNone(mesh_a)
@@ -82,6 +88,15 @@ class ConfigTests(unittest.TestCase):
                 mesh_b.get("filename"),
                 str(source_b.resolve().parent / "meshes" / "body.obj"),
             )
+
+    def test_webcam_access_hint_matches_the_host_platform(self) -> None:
+        hint = webcam_access_hint()
+        if sys.platform == "darwin":
+            self.assertIn("macOS", hint)
+        elif sys.platform == "win32":
+            self.assertIn("Windows", hint)
+        else:
+            self.assertIn("/dev/video", hint)
 
 
 class SimulationTests(unittest.TestCase):

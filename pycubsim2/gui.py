@@ -17,7 +17,7 @@ from .actions import BUILTIN_BEHAVIORS, MANUAL_JOINT_NAMES
 from .config import EntitySpec, SceneConfig, Transform
 from .dialogs import ModelImportDialog, PrimitiveDialog
 from .layout_editor import SceneMapEditor
-from .platform_ui import configure_application_icon
+from .platform_ui import configure_application_icon, prepare_application_process
 from .sensors import WebcamCapture
 from .simulation import PROJECT_ROOT, PyCubSim2Simulation
 
@@ -1975,7 +1975,7 @@ class PyCubSim2App:
         elif source_key.startswith("webcam"):
             index = int(source_key.split(":", 1)[1])
             frame = self.webcam.read(index, render_width, render_height)
-            overlay = f"Sensor RGB | Mac webcam {index}"
+            overlay = f"Sensor RGB | Webcam {index}"
             if view != "Sensor RGB":
                 self.status_var.set("Webcam provides RGB only")
         elif source_key == "world":
@@ -2551,6 +2551,7 @@ class PyCubSim2App:
 
 
 def launch(scene: SceneConfig | None = None) -> None:
+    prepare_application_process()
     root = tk.Tk()
     simulation = PyCubSim2Simulation(scene)
     app = PyCubSim2App(root, simulation=simulation)

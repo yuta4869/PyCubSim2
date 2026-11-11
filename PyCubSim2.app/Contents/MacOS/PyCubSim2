@@ -2,15 +2,79 @@
 
 PROJECT_DIR="$(cd "$(dirname "$0")/../../.." && pwd)"
 LOG_FILE="/tmp/pycubsim2.log"
+REQUIRED_IMPORTS="import numpy, pybullet, PIL, cv2"
 
-if [[ -x "/opt/miniconda3/envs/pycubsim2/bin/python" ]]; then
-    PYTHON="/opt/miniconda3/envs/pycubsim2/bin/python"
-elif [[ -x "/opt/miniconda3/envs/pycub-homeostatic/bin/python" ]]; then
-    PYTHON="/opt/miniconda3/envs/pycub-homeostatic/bin/python"
-else
-    PYTHON="$(command -v python3)"
+PYTHON_CANDIDATES=()
+if [[ "${CONDA_DEFAULT_ENV:-}" == "pycubsim2" && -n "${CONDA_PREFIX:-}" ]]; then
+    PYTHON_CANDIDATES+=("$CONDA_PREFIX/bin/python")
+fi
+PYTHON_CANDIDATES+=(
+    "$HOME/miniforge3/envs/pycubsim2/bin/python"
+    "$HOME/miniconda3/envs/pycubsim2/bin/python"
+    "$HOME/anaconda3/envs/pycubsim2/bin/python"
+    "$HOME/mambaforge/envs/pycubsim2/bin/python"
+    "/opt/homebrew/Caskroom/miniforge/base/envs/pycubsim2/bin/python"
+    "/opt/homebrew/Caskroom/miniconda/base/envs/pycubsim2/bin/python"
+    "/opt/miniforge3/envs/pycubsim2/bin/python"
+    "/opt/miniconda3/envs/pycubsim2/bin/python"
+    "/opt/anaconda3/envs/pycubsim2/bin/python"
+    "/usr/local/miniforge3/envs/pycubsim2/bin/python"
+    "/usr/local/miniconda3/envs/pycubsim2/bin/python"
+    "/usr/local/anaconda3/envs/pycubsim2/bin/python"
+)
+PYTHON_BIN=""
+
+: > "$LOG_FILE"
+{
+    print "PyCubSim2 source launcher"
+    print "Started: $(/bin/date)"
+    print "Project: $PROJECT_DIR"
+} >> "$LOG_FILE"
+
+for CANDIDATE in "${PYTHON_CANDIDATES[@]}"; do
+    if [[ ! -x "$CANDIDATE" ]]; then
+        print "Not found: $CANDIDATE" >> "$LOG_FILE"
+        continue
+    fi
+
+    print "Checking: $CANDIDATE" >> "$LOG_FILE"
+    if IMPORT_ERROR="$("$CANDIDATE" -c "$REQUIRED_IMPORTS" 2>&1)"; then
+        PYTHON_BIN="$CANDIDATE"
+        break
+    fi
+
+    print "Rejected: required imports failed for $CANDIDATE" >> "$LOG_FILE"
+    print -r -- "$IMPORT_ERROR" >> "$LOG_FILE"
+done
+
+if [[ -z "$PYTHON_BIN" ]]; then
+    {
+        print
+        print "PyCubSim2 could not find a usable Conda environment."
+        print "Expected environment name: pycubsim2"
+        print "Required modules: numpy, pybullet, PIL, cv2"
+        print
+        print "Create it with:"
+        print "  conda env create -f \"$PROJECT_DIR/environment.yml\""
+        print
+        print "Then open PyCubSim2.app again."
+    } >> "$LOG_FILE"
+
+    /usr/bin/osascript -e \
+        'display dialog "A usable pycubsim2 Conda environment was not found. Check /tmp/pycubsim2.log for details." buttons {"OK"} default button "OK" with icon stop' \
+        >/dev/null 2>&1 || true
+    exit 1
 fi
 
-cd "$PROJECT_DIR" || exit 1
-: >"$LOG_FILE"
-exec env PYTHONUNBUFFERED=1 "$PYTHON" run_sim.py >>"$LOG_FILE" 2>&1
+print "Selected: $PYTHON_BIN" >> "$LOG_FILE"
+
+if ! cd "$PROJECT_DIR"; then
+    print "Could not open project directory: $PROJECT_DIR" >> "$LOG_FILE"
+    /usr/bin/osascript -e \
+        'display dialog "PyCubSim2 could not open its project directory. Check /tmp/pycubsim2.log for details." buttons {"OK"} default button "OK" with icon stop' \
+        >/dev/null 2>&1 || true
+    exit 1
+fi
+
+exec env PYTHONUNBUFFERED=1 \
+    "$PYTHON_BIN" "$PROJECT_DIR/run_sim.py" >> "$LOG_FILE" 2>&1

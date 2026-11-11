@@ -9,20 +9,55 @@ PYINSTALLER_DIST="$BUILD_ROOT/pyinstaller-dist"
 WORK_ROOT="$BUILD_ROOT/work"
 DMG_ROOT="$BUILD_ROOT/dmg-root"
 DIST_ROOT="$PROJECT_DIR/dist"
+PYINSTALLER_CONFIG_ROOT="${PYINSTALLER_CONFIG_DIR:-$BUILD_ROOT/pyinstaller-cache}"
+NOTARY_PROFILE="${NOTARY_PROFILE:-}"
+DISTRIBUTION="${DISTRIBUTION:-0}"
 
 if [[ "$(uname -s)" != "Darwin" ]]; then
     print -u2 "The macOS DMG must be built on macOS."
     exit 1
 fi
 
+if [[ "$DISTRIBUTION" != "0" && "$DISTRIBUTION" != "1" ]]; then
+    print -u2 "DISTRIBUTION must be 0 (local) or 1 (public release)."
+    exit 1
+fi
+
 if [[ -n "${PYTHON:-}" ]]; then
     PYTHON_BIN="$PYTHON"
-elif [[ -x "/opt/miniconda3/envs/pycubsim2/bin/python" ]]; then
-    PYTHON_BIN="/opt/miniconda3/envs/pycubsim2/bin/python"
-elif [[ -x "/opt/miniconda3/envs/pycub-homeostatic/bin/python" ]]; then
-    PYTHON_BIN="/opt/miniconda3/envs/pycub-homeostatic/bin/python"
 else
-    PYTHON_BIN="$(command -v python3)"
+    PYTHON_CANDIDATES=(
+        "$HOME/miniforge3/envs/pycubsim2/bin/python"
+        "$HOME/miniconda3/envs/pycubsim2/bin/python"
+        "$HOME/anaconda3/envs/pycubsim2/bin/python"
+        "$HOME/mambaforge/envs/pycubsim2/bin/python"
+        "/opt/homebrew/Caskroom/miniforge/base/envs/pycubsim2/bin/python"
+        "/opt/homebrew/Caskroom/miniconda/base/envs/pycubsim2/bin/python"
+        "/opt/miniforge3/envs/pycubsim2/bin/python"
+        "/opt/miniconda3/envs/pycubsim2/bin/python"
+        "/opt/anaconda3/envs/pycubsim2/bin/python"
+        "/usr/local/miniforge3/envs/pycubsim2/bin/python"
+        "/usr/local/miniconda3/envs/pycubsim2/bin/python"
+        "/usr/local/anaconda3/envs/pycubsim2/bin/python"
+    )
+    PYTHON_BIN=""
+
+    for CANDIDATE in "${PYTHON_CANDIDATES[@]}"; do
+        if [[ -x "$CANDIDATE" ]]; then
+            PYTHON_BIN="$CANDIDATE"
+            break
+        fi
+    done
+
+    if [[ -z "$PYTHON_BIN" ]]; then
+        PYTHON_BIN="$(command -v python3 || true)"
+    fi
+fi
+
+if [[ -z "$PYTHON_BIN" || ! -x "$PYTHON_BIN" ]]; then
+    print -u2 "No usable Python executable was found for the macOS build."
+    print -u2 "Set PYTHON=/absolute/path/to/python and try again."
+    exit 1
 fi
 
 if ! "$PYTHON_BIN" -c "import PyInstaller" 2>/dev/null; then
@@ -37,20 +72,105 @@ ARCH="${TARGET_ARCH:-$(uname -m)}"
 APP_NAME="PyCubSim2.app"
 APP_PATH="$PYINSTALLER_DIST/$APP_NAME"
 FINAL_APP="$DIST_ROOT/$APP_NAME"
-DMG_PATH="$DIST_ROOT/PyCubSim2-${VERSION}-macos-${ARCH}.dmg"
 SIGN_IDENTITY="${CODESIGN_IDENTITY:--}"
 SELF_TEST_IMAGE="$BUILD_ROOT/standalone-smoke.png"
+APP_ARCHIVE="$BUILD_ROOT/PyCubSim2-${VERSION}-macos-${ARCH}.zip"
 
-if [[ -n "${NOTARY_PROFILE:-}" && "$SIGN_IDENTITY" == "-" ]]; then
-    print -u2 "NOTARY_PROFILE requires a Developer ID CODESIGN_IDENTITY."
+if [[ "$DISTRIBUTION" == "1" ]]; then
+    DMG_PATH="$DIST_ROOT/PyCubSim2-${VERSION}-macos-${ARCH}.dmg"
+else
+    DMG_PATH="$DIST_ROOT/PyCubSim2-${VERSION}-macos-${ARCH}-local-adhoc.dmg"
+fi
+
+if [[ "$DISTRIBUTION" == "1" ]]; then
+    if [[ "$SIGN_IDENTITY" == "-" ]]; then
+        print -u2 "A public release requires CODESIGN_IDENTITY."
+        print -u2 "Use a Developer ID Application certificate, not ad-hoc signing."
+        exit 1
+    fi
+    if [[ -z "$NOTARY_PROFILE" ]]; then
+        print -u2 "A public release requires NOTARY_PROFILE."
+        print -u2 "Create one with: xcrun notarytool store-credentials"
+        exit 1
+    fi
+
+    IDENTITY_LINE="$(
+        security find-identity -v -p codesigning \
+            | /usr/bin/grep -F -- "$SIGN_IDENTITY" \
+            | /usr/bin/head -n 1 \
+            || true
+    )"
+    if [[ -z "$IDENTITY_LINE" ]]; then
+        print -u2 "The requested code-signing identity is not in the Keychain:"
+        print -u2 "  $SIGN_IDENTITY"
+        print -u2 "Available identities:"
+        security find-identity -v -p codesigning >&2
+        exit 1
+    fi
+    if [[ "$IDENTITY_LINE" != *"Developer ID Application:"* ]]; then
+        print -u2 "Public distribution requires a Developer ID Application identity."
+        print -u2 "Matched identity: $IDENTITY_LINE"
+        exit 1
+    fi
+
+    print "Validating notarization credentials..."
+    xcrun notarytool history \
+        --keychain-profile "$NOTARY_PROFILE" \
+        >/dev/null
+elif [[ -n "$NOTARY_PROFILE" ]]; then
+    print -u2 "NOTARY_PROFILE is only accepted with DISTRIBUTION=1."
     exit 1
 fi
 
+notarize_artifact() {
+    local artifact_path="$1"
+    local result
+    local status
+    local submission_id
+
+    print
+    print "Submitting $(basename "$artifact_path") for notarization..."
+    result="$(
+        xcrun notarytool submit \
+            "$artifact_path" \
+            --keychain-profile "$NOTARY_PROFILE" \
+            --wait \
+            --output-format json
+    )"
+    print -r -- "$result"
+    status="$(
+        print -r -- "$result" \
+            | "$PYTHON_BIN" -c \
+                'import json, sys; print(json.load(sys.stdin).get("status", ""))'
+    )"
+    if [[ "$status" != "Accepted" ]]; then
+        submission_id="$(
+            print -r -- "$result" \
+                | "$PYTHON_BIN" -c \
+                    'import json, sys; print(json.load(sys.stdin).get("id", ""))'
+        )"
+        if [[ -n "$submission_id" ]]; then
+            xcrun notarytool log \
+                "$submission_id" \
+                --keychain-profile "$NOTARY_PROFILE" \
+                || true
+        fi
+        print -u2 "Apple did not accept $(basename "$artifact_path")."
+        exit 1
+    fi
+}
+
 rm -rf "$BUILD_ROOT" "$FINAL_APP"
 rm -f "$DMG_PATH"
-mkdir -p "$PYINSTALLER_DIST" "$WORK_ROOT" "$DMG_ROOT" "$DIST_ROOT"
+mkdir -p \
+    "$PYINSTALLER_DIST" \
+    "$WORK_ROOT" \
+    "$DMG_ROOT" \
+    "$DIST_ROOT" \
+    "$PYINSTALLER_CONFIG_ROOT"
 
-"$PYTHON_BIN" -m PyInstaller \
+PYINSTALLER_CONFIG_DIR="$PYINSTALLER_CONFIG_ROOT" \
+    "$PYTHON_BIN" -m PyInstaller \
     --noconfirm \
     --clean \
     --distpath "$PYINSTALLER_DIST" \
@@ -69,7 +189,7 @@ else
         --sign "$SIGN_IDENTITY" \
         "$APP_PATH"
 fi
-codesign --verify --deep --strict "$APP_PATH"
+codesign --verify --deep --strict --verbose=2 "$APP_PATH"
 
 env -i \
     HOME="$HOME" \
@@ -83,6 +203,15 @@ env -i \
 if [[ ! -s "$SELF_TEST_IMAGE" ]]; then
     print -u2 "The standalone headless smoke test did not create an image."
     exit 1
+fi
+
+if [[ "$DISTRIBUTION" == "1" ]]; then
+    /usr/bin/ditto -c -k --keepParent "$APP_PATH" "$APP_ARCHIVE"
+    notarize_artifact "$APP_ARCHIVE"
+    xcrun stapler staple "$APP_PATH"
+    xcrun stapler validate "$APP_PATH"
+    codesign --verify --deep --strict --verbose=2 "$APP_PATH"
+    spctl --assess --type execute --verbose=4 "$APP_PATH"
 fi
 
 /usr/bin/ditto "$APP_PATH" "$FINAL_APP"
@@ -100,15 +229,24 @@ if [[ "$SIGN_IDENTITY" != "-" ]]; then
     codesign --force --timestamp --sign "$SIGN_IDENTITY" "$DMG_PATH"
 fi
 
-if [[ -n "${NOTARY_PROFILE:-}" ]]; then
-    xcrun notarytool submit \
-        "$DMG_PATH" \
-        --keychain-profile "$NOTARY_PROFILE" \
-        --wait
+if [[ "$DISTRIBUTION" == "1" ]]; then
+    notarize_artifact "$DMG_PATH"
     xcrun stapler staple "$DMG_PATH"
+    xcrun stapler validate "$DMG_PATH"
+    spctl \
+        --assess \
+        --type open \
+        --context context:primary-signature \
+        --verbose=4 \
+        "$DMG_PATH"
 fi
 
 hdiutil verify "$DMG_PATH"
 print
+if [[ "$DISTRIBUTION" == "0" ]]; then
+    print "LOCAL BUILD: ad-hoc signed and not notarized."
+    print "Do not publish this DMG; Gatekeeper will warn on another Mac."
+    print
+fi
 print "Application: $FINAL_APP"
 print "Disk image:  $DMG_PATH"

@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from pathlib import Path
 
 
@@ -57,25 +58,25 @@ def main() -> None:
         frame = simulation.render(1280, 800, "World", shadows=True)
         args.output.parent.mkdir(parents=True, exist_ok=True)
         Image.fromarray(frame).save(args.output)
-        print(
-            json.dumps(
-                {
-                    "output": str(args.output.resolve()),
-                    "elapsed_s": simulation.elapsed_s,
-                    "entities": [
-                        {
-                            "id": runtime.spec.entity_id,
-                            "name": runtime.spec.name,
-                            "kind": runtime.spec.kind,
-                            "bodies": runtime.body_ids,
-                            "joints": len(runtime.joints),
-                        }
-                        for runtime in simulation.entities.values()
-                    ],
-                },
-                indent=2,
-            )
+        summary = json.dumps(
+            {
+                "output": str(args.output.resolve()),
+                "elapsed_s": simulation.elapsed_s,
+                "entities": [
+                    {
+                        "id": runtime.spec.entity_id,
+                        "name": runtime.spec.name,
+                        "kind": runtime.spec.kind,
+                        "bodies": runtime.body_ids,
+                        "joints": len(runtime.joints),
+                    }
+                    for runtime in simulation.entities.values()
+                ],
+            },
+            indent=2,
         )
+        if sys.stdout is not None:
+            print(summary)
     finally:
         simulation.close()
 
